@@ -458,7 +458,7 @@ export async function draftFor(id: string, opts: { forceEmail?: boolean; forceBr
 }
 
 /** Fill in briefs/drafts for anyone whose rank changed. Bounded by time; call again until remaining = 0. */
-export async function syncDrafts(budgetMs = 38_000): Promise<{ processed: number; remaining: number; failed: number }> {
+export async function syncDrafts(budgetMs = 20_000): Promise<{ processed: number; remaining: number; failed: number }> {
   const start = Date.now();
   const todo = await pendingDraftIds();
   let processed = 0;
