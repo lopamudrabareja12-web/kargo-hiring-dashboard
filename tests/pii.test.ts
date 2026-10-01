@@ -125,3 +125,15 @@ describe("[NAME] substitution", () => {
     expect(unfilledPlaceholders("Hi [NAME], {{SCHEDULING_LINK}}")).toEqual(["[NAME]", "{{SCHEDULING_LINK}}"]);
   });
 });
+
+describe("guardrail and the rubric's own examples", () => {
+  it("does not block an applicant who shares a first name with a past hire quoted in the rubric", () => {
+    const rubricText = 'Examples: Rahul\'s "Launched Ventus\'s first customer case study programme".';
+    const prompt = `${rubricText}\n=== CV ===\n[NAME] ran ops at a 3PL.`;
+    expect(() => assertNoPii(prompt, "Rahul Sharma", [rubricText])).not.toThrow();
+  });
+  it("still blocks the name when it is in the candidate's own text", () => {
+    const rubricText = "Examples: Rahul's case study.";
+    expect(() => assertNoPii(`${rubricText}\nRahul ran ops.`, "Rahul Sharma", [rubricText])).toThrow(/name/);
+  });
+});

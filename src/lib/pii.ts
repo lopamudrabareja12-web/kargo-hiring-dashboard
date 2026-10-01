@@ -238,14 +238,20 @@ export class PiiLeakError extends Error {
 /**
  * The guardrail. Runs on every string sent to Gemini.
  * Fails if it finds an email pattern, a 10-digit phone pattern or the candidate's name.
+ * `trusted` = fixed rubric text that may mention past hires by first name.
  */
-export function assertNoPii(text: string, name: string | null | undefined): void {
+export function assertNoPii(text: string, name: string | null | undefined, trusted: string[] = []): void {
   const kinds: string[] = [];
   EMAIL_RE.lastIndex = 0;
   if (EMAIL_RE.test(text)) kinds.push("email");
   EMAIL_RE.lastIndex = 0;
   if (findPhones(text).length) kinds.push("phone");
-  if (name && namePatterns(name).some((re) => { re.lastIndex = 0; return re.test(text); })) kinds.push("name");
+  // The name check skips fixed text we wrote (the rubric quotes past hires like "Rohan" or
+  // "Rahul"; an applicant sharing that first name must not be blocked). Everything that comes
+  // from the candidate (CV text, model reasons, evidence) is still checked.
+  let candidateText = text;
+  for (const t of trusted) if (t) candidateText = candidateText.split(t).join(" ");
+  if (name && namePatterns(name).some((re) => { re.lastIndex = 0; return re.test(candidateText); })) kinds.push("name");
   if (kinds.length) throw new PiiLeakError(kinds);
 }
 
