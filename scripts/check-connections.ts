@@ -9,7 +9,7 @@ async function main() {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
     const g = await ai.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-3.5-flash",
+      model: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
       contents: "Reply with the single word OK.",
       config: { thinkingConfig: { thinkingBudget: 0 } },
     });

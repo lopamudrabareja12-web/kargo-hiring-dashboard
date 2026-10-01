@@ -17,6 +17,7 @@ const REDACTION_NOTE =
 
 export interface ScoreItem {
   criterion: number;
+  analysis: string;
   evidence: string;
   reason: string;
   score: number;
@@ -39,12 +40,17 @@ export const scoreSchema: Schema = {
         type: Type.OBJECT,
         properties: {
           criterion: { type: Type.INTEGER, description: "The criterion number, as given." },
+          analysis: {
+            type: Type.STRING,
+            description:
+              "Working, written BEFORE the score: go through each part of the Strong test, then the Partial test, marking each part met / not met with the exact CV words. For counting criteria, list every item counted and its category.",
+          },
           evidence: { type: Type.STRING, description: "Short verbatim quote copied from the CV, or empty string." },
           reason: { type: Type.STRING, description: "One line naming the specific thing in the CV that decided the score." },
           score: { type: Type.INTEGER },
         },
-        required: ["criterion", "evidence", "reason", "score"],
-        propertyOrdering: ["criterion", "evidence", "reason", "score"],
+        required: ["criterion", "analysis", "evidence", "reason", "score"],
+        propertyOrdering: ["criterion", "analysis", "evidence", "reason", "score"],
       },
     },
   },
@@ -66,6 +72,8 @@ Rules for every criterion:
 8. "evidence": a short quote copied word-for-word from the CV (under 30 words) supporting the score. Use "" if there is no relevant evidence. Never paraphrase inside the quote.
 9. Return exactly one entry per criterion number.
 10. Never mention the past hires named in the rubric's examples in your reason or evidence; describe this CV only.
+11. Work each criterion out in "analysis" BEFORE scoring. Check the Strong test part by part (every part must be met for Strong), then the Partial test. Quote the CV words for each part. Where a test says "all three", one missing part means it is not Strong.
+12. When a criterion asks you to count results, list EVERY quantified result in the stated roles in "analysis" (including revenue, ARR, adoption %, features shipped), mark each user-side or company-side using the rubric's lists, then compare the counts.
 
 The rubric's shared scoring rules (follow them exactly, including the rules about not counting one CV line twice):
 ${version.scoring_rules}`;
@@ -126,7 +134,7 @@ export function makeScoreValidator(criteria: CriterionRow[], maxScore: number) {
   const shape = z.object({
     headline: z.string(),
     criteria: z.array(
-      z.object({ criterion: z.number().int(), evidence: z.string(), reason: z.string().min(3), score: z.number().int() }),
+      z.object({ criterion: z.number().int(), analysis: z.string().optional().default(""), evidence: z.string(), reason: z.string().min(3), score: z.number().int() }),
     ),
   });
   return (data: unknown): ScoreOutput => {

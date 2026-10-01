@@ -41,7 +41,7 @@ cp .env.example .env.local      # then fill in the values
 | `SUPABASE_URL` | yes | Supabase → Project Settings → API → Project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | The **service-role / secret** key. Server-side only, never in the browser. |
 | `GEMINI_API_KEY` | yes | Google AI Studio / Gemini API key (billing enabled) |
-| `GEMINI_MODEL` | no | Default `gemini-3.5-flash` (`gemini-2.5-flash` is closed to new API users; newer 3.6–3.8 were often overloaded at build time). |
+| `GEMINI_MODEL` | no | Default `gemini-3.1-flash-lite`: it works on the **free** tier (15 requests/min). Full Flash models allow only 20 requests/day free, too few for 60 CVs (about 240 calls). `gemini-2.5-flash` is closed to new API users. |
 | `GEMINI_THINKING_BUDGET` | no | Thinking tokens per call. Default `1024`; `0` = off, `-1` = automatic |
 | `DASHBOARD_PASSWORD` | yes | The login password. Make it long. |
 | `SCHEDULING_LINK` | for invites | Arjun's booking link; replaces `{{SCHEDULING_LINK}}` at send time |
@@ -71,7 +71,11 @@ npm test             # unit + pipeline tests (no keys needed)
 npm run calibrate    # scores the 8 past-hire CVs with Gemini and compares to the rubric's calibration table
 ```
 
-Run `calibrate` once you have a Gemini key. It goes through the same redact → guardrail → score code as the app, and prints each hire's scores next to the rubric's own calibration (e.g. Sunita 90.0, Vikram 45.0). That is the best check that the prompts apply the rubric as intended.
+Run `calibrate` once you have a Gemini key.
+
+**Calibration result (gemini-3.1-flash-lite, free tier, class-1 rubric):** all 5 Exceeds hires scored 65–100 and every other hire scored under 50, so the 50 bar separates Exceeds from the rest. 27/40 criterion scores matched the rubric's hand scores exactly, and 39/40 were within one point. One miss: Preetham (Below) scored 47.5, above both Meets hires (35 and 20), though all three stay below the bar. Same CV, same rubric gave identical scores across repeated runs.
+
+ It goes through the same redact → guardrail → score code as the app, and prints each hire's scores next to the rubric's own calibration (e.g. Sunita 90.0, Vikram 45.0). That is the best check that the prompts apply the rubric as intended.
 
 ### Other scripts
 
