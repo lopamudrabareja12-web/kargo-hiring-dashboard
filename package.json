@@ -1,0 +1,45 @@
+{
+  "name": "kargo-hiring-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "seed:rubric": "tsx --env-file=.env.local scripts/seed-rubric.ts",
+    "seed:jds": "tsx --env-file=.env.local scripts/seed-jds.ts",
+    "redraft": "tsx --env-file=.env.local scripts/redraft.ts",
+    "calibrate": "tsx --env-file=.env.local scripts/calibrate.ts",
+    "rescore-check": "tsx --env-file=.env.local scripts/rescore-check.ts",
+    "rescore": "tsx --env-file=.env.local scripts/rescore.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google/genai": "^2.25.0",
+    "@supabase/supabase-js": "^2.117.2",
+    "mammoth": "^1.13.0",
+    "next": "^15.5.27",
+    "pdf-parse": "^1.1.1",
+    "react": "19.1",
+    "react-dom": "19.1",
+    "resend": "^6.31.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.3",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^5.0.3"
+  }
+}

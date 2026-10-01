@@ -1,0 +1,129 @@
+KARGO HIRING RUBRIC (DRAFT)
+Version: draft-1 (written in Cowork from the 8 hire CVs + ratings table)
+Replace with the rubric.txt produced in class (checkpoint L4-1) when you have it.
+Weights add to 100% per role. Score each criterion 0-10 on evidence written in the CV only.
+
+======================================================================
+WHERE THE CRITERIA COME FROM (patterns in the hire profiles)
+======================================================================
+Exceeds (5): Rohan, Sunita, Aditya, Meghna, Lavanya
+Meets (2): Vikram, Rahul    Below (1): Preetham
+
+Pattern A - Worked inside a messy operation before (or while) building for it.
+  All 5 Exceeds did hands-on freight/logistics ops work: Rohan (CHA operations, 180+
+  shipments/month), Sunita (freight documentation), Aditya (port terminal sales,
+  "worked alongside the terminal operations team"), Meghna (freight forwarder client
+  desk), Lavanya (3PL carrier ops). Preetham integrated with logistics providers via
+  APIs but never worked the operation, and is the one rated Below. Vikram and Rahul
+  have none.
+
+Pattern B - Noticed a broken process nobody assigned them, built the fix with whatever
+  was at hand, and other people adopted it.
+  Rohan: Excel tracker adopted by 12-person team in 2 weeks; BL verification prototype
+  built over a weekend, 30 users in a month. Sunita: redesigned intake workflow over a
+  weekend when the vendor changed format; kept permanently. Lavanya: Excel dashboard ->
+  Tableau, adopted by 2 other regional teams. Meghna: onboarding checklist became team
+  standard. (Vikram's PRD template was also adopted, but it fixed an internal PM
+  process, not a user's operational problem.)
+
+Pattern C - Names their own failures and makes clear calls.
+  Aditya: post-mortem on a 4-month lost deal, now standard practice. Lavanya: killed 2
+  features on usage data; wrote the outage post-mortem; "She doesn't hedge." Meghna:
+  wrote the bug report for an undocumented product limitation and owned customer comms.
+  Vikram's and Rahul's CVs list only wins.
+
+Anti-signal: credentials. Vikram has the strongest credentials of the eight (XLRI MBA,
+Product School CPO, Reforge) and was rated Meets. Do not reward degrees, college names,
+certifications, employer brand or years of experience on their own.
+
+======================================================================
+PRODUCT MANAGER (PM)
+======================================================================
+
+Criterion name: Operational proximity
+What a strong candidate looks like: Has personally done operational work in a
+workflow-heavy business (logistics, freight, supply chain, field ops, or similar):
+handled shipments, documents, exceptions or customer escalations themselves, not only
+through software, reports or APIs. Strong (8-10): 2+ years hands-on in the operation,
+with specifics (volumes, document types, counterparties). Weak (0-3): only built or sold
+software for such businesses from a distance, or no operational exposure at all.
+Weight: 30%
+
+Criterion name: Self-started fixes others adopted
+What a strong candidate looks like: Spotted a problem no one had assigned them, built a
+working fix with the tools available (a spreadsheet, a prototype, a new process), and
+the CV says other people started using it (team adoption, other teams, became standard).
+Strong: at least one clear example with who adopted it and how fast. Weak: only
+assigned features or responsibilities described, or a fix with no sign anyone used it.
+Weight: 25%
+
+Criterion name: Candour about failure
+What a strong candidate looks like: The CV describes something that did not work and
+what they did about it: a post-mortem, killing their own feature on data, a lost deal
+analysed, an incident owned to closure. Strong: a specific failure plus the concrete
+change that followed. Weak: every bullet is a success metric.
+Weight: 15%
+
+Criterion name: Ownership under pressure
+What a strong candidate looks like: Resolved a time-critical problem themselves, with
+limited support, without escalating: an overnight customs hold, a vendor change with no
+notice, a spike in volume with no extra headcount. Strong: a named situation, what they
+did, and the outcome. Weak: generic "worked in a fast-paced environment" language.
+Weight: 15%
+
+Criterion name: Translating between operators and builders
+What a strong candidate looks like: Has turned what frontline users actually do into
+something engineers could build, and caught mismatches between the software and the
+real workflow (discovery with operators, field requirements into specs, coordinating a
+fix between users and engineering). Strong: a specific mismatch they uncovered and the
+change it led to. Weak: lists discovery, PRDs or user interviews as activities with no
+finding.
+Weight: 15%
+
+======================================================================
+SENIOR PRODUCT MANAGER (SPM)
+Same criteria, higher bar, especially on how independently they operated.
+======================================================================
+
+Criterion name: Operational proximity
+What a strong candidate looks like: As for PM, and they have also used that operational
+knowledge to shape a product or process that serves many operators (e.g. rolled a tool
+out to multiple client teams). Strong: 3+ years combined in operations and in building
+for operations. Weak: operational exposure only as an observer or through a vendor.
+Weight: 20%
+
+Criterion name: Self-started fixes others adopted
+What a strong candidate looks like: Repeatedly (2+ examples) created something unasked
+that spread beyond their own team: adopted across teams, by clients, or became a core
+product feature, with them as the sole or lead owner. Strong: sole owner of a product
+area or a 0-to-1 build that others now depend on. Weak: a single team-level example, or
+ownership shared with a senior lead.
+Weight: 30%
+
+Criterion name: Candour about failure
+What a strong candidate looks like: As for PM, and they made the call to stop, reverse
+or redirect work (killed features, changed strategy, walked away from a deal) and
+explained why to others. Strong: a decision that cost them something and the reasoning
+shared with the team or customers. Weak: failures mentioned only as problems solved.
+Weight: 15%
+
+Criterion name: Ownership under pressure
+What a strong candidate looks like: Owned high-stakes outcomes with no one above them to
+escalate to: incidents, migrations, key accounts or launches where they were the final
+decision-maker. Strong: a named, high-stakes situation where they were accountable end
+to end. Weak: pressure handled as part of a larger team, or under a manager's direction.
+Weight: 25%
+
+Criterion name: Translating between operators and builders
+What a strong candidate looks like: Has set direction for engineers from operator
+insight: decided what to build and what not to, with the engineering team trusting
+their calls. Strong: evidence engineers followed their product decisions (e.g. direct
+feedback, calls that changed a roadmap). Weak: coordinated between teams but did not
+make the decisions.
+Weight: 10%
+
+======================================================================
+CHECKS
+PM:  30 + 25 + 15 + 15 + 15 = 100
+SPM: 20 + 30 + 15 + 25 + 10 = 100
+======================================================================

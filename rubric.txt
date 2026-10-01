@@ -1,0 +1,324 @@
+KARGO HIRING RUBRIC: PRODUCT MANAGER AND SENIOR PRODUCT MANAGER
+Built from the patterns in 8 past hire profiles, not from the job descriptions.
+
+=====================================================================
+HOW TO SCORE
+=====================================================================
+
+Score each criterion 0, 1 or 2, using only what is written in the CV.
+
+  2 = Strong. The CV meets every part of the "Strong" test.
+  1 = Partial. The CV meets the "Partial" test.
+  0 = Weak or absent. The CV meets the "Weak" test, or there is nothing
+      relevant.
+
+Weighted score (out of 100) = sum of (score x weight) / 2
+
+Rules that apply to every criterion:
+  - Score only what is written. Don't give credit for what the
+    candidate "probably" did.
+  - Don't count the same thing twice:
+      * Other people using something the candidate built (a tool,
+        tracker, template or document) is scored under "The fix spread".
+      * Other people changing a step, check or decision because of a
+        lesson from a failure is scored under "Post-mortem others now
+        follow".
+      * A single CV line can't score in both criteria.
+  - User-side results are counted changes in what the customer or user
+    has to deal with. These are:
+      * support tickets or queries
+      * delays or on-time departures
+      * penalties or inspection outcomes
+      * onboarding, integration or time-to-value
+      * errors or exceptions the user faced
+  - Company-side results do not count as user-side. These are:
+      * revenue, ARR, pipeline, quota or CAC
+      * churn
+      * adoption %
+      * number of features shipped
+      * system speed, uptime or processing lag
+
+
+=====================================================================
+PRODUCT MANAGER
+=====================================================================
+
+---------------------------------------------------------------------
+1. Criterion name: Fixed what they saw
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The CV has all three of these:
+  (a) The trigger is stated. It names a problem that colleagues or
+      customers were having in their work, using wording like "found
+      that...", "when X changed...", "noticed...".
+  (b) The candidate built the fix themselves: a tool, tracker,
+      prototype, process or document.
+  (c) Nothing says the work was assigned. There is no "tasked with",
+      "responsible for" or "asked to".
+  Examples:
+    - Rohan: built an Excel tracker "after finding that the team had
+      no reliable way to know where each shipment stood."
+    - Sunita: "When the company's FMS vendor changed their data export
+      format without notice, independently redesigned the team's
+      documentation intake and filing workflow over a weekend."
+Partial (1):
+  The CV has one of these:
+  - Unassigned work with no stated trigger. Examples: Vikram's "Built
+    and socialised a PRD template"; Rahul's "Launched Ventus's first
+    customer case study programme".
+  - A stated trigger, but someone else built the fix. Example: Meghna
+    found a product limitation and wrote the bug report; engineering
+    fixed it.
+  - A trigger stated only as a system metric. Example: Preetham's
+    "after identifying query degradation at scale".
+Weak (0):
+  The CV has only assigned work ("led the migration of...", "owns the
+  X module") or general claims ("proactive", "self-starter").
+Weight: 25%
+
+---------------------------------------------------------------------
+2. Criterion name: The fix spread
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  Other people used something the candidate built. The CV names both:
+  - who used it: a specific group, such as a "12-member team", "2
+    other regional teams" or the "full CS team"
+  - a number, a timeframe or a sign that it lasted, such as "within
+    two weeks", "now uses" or "retained permanently"
+  Examples:
+    - Rohan: "adopted across the 12-member operations team within two
+      weeks."
+    - Lavanya: dashboard "adopted by 2 other regional teams."
+Partial (1):
+  Adoption is claimed, but either the group or the number/time is
+  missing. Examples: "rolled out to the team"; "became widely used".
+Weak (0):
+  Words like "socialised", "presented", "proposed" or "shared" with no
+  sign that anyone used it. Or the candidate built something only they
+  used. Example: Preetham's monitoring dashboard.
+Weight: 20%
+
+---------------------------------------------------------------------
+3. Criterion name: In the room when it broke
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The CV has all three of these:
+  (a) a specific live failure, such as a hold, outage, inspection,
+      escalation or vendor failure
+  (b) the candidate personally dealt with the outside party, such as
+      a customer, customs official, carrier, vendor or authority
+  (c) the outcome is stated
+  Examples:
+    - Meghna: "coordinated directly with the CHA and customs officer
+      through the night to resolve before the client became aware —
+      shipment departed on schedule."
+    - Sunita: "Liaised with Customs Preventive and Audit teams during
+      two shipment-level inspections; both closed without penalties."
+Partial (1):
+  The CV has one of these:
+  - A live failure resolved only inside the company, with no outside
+    party. Examples: Preetham's P1 on-call rotation; Rohan's
+    PostgreSQL fix.
+  - An outside party was involved, but the candidate's own contact
+    with them, or the outcome, isn't stated.
+Weak (0):
+  No failure is described, or only general lines like "handled
+  escalations" or "strong under pressure" with no specific event. Most
+  CVs that list only successes score 0 here (Vikram and Rahul do).
+Weight: 20%
+
+---------------------------------------------------------------------
+4. Criterion name: Post-mortem others now follow
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The CV names a specific failure the candidate was part of, such as a
+  lost deal, outage, missed deadline or failed feature, and shows all
+  three of these:
+  (a) The cause is written down in concrete terms, not just "what went
+      wrong".
+  (b) Someone else received it: a team, a customer or a manager.
+  (c) The lesson changed how other people work. The CV names a step,
+      check or decision that others now handle differently because of
+      it. Other people using the write-up itself as a document doesn't
+      count here; that belongs under "The fix spread".
+  Example:
+    - Aditya: "ran a post-mortem on the loss, documented root cause
+      (misread of IT procurement cycle and wrong economic buyer
+      identified), shared with the team; now standard practice before
+      account qualification." The team now checks the procurement
+      cycle and the economic buyer before qualifying an account.
+Partial (1):
+  A specific failure plus one or two of (a)-(c), but not all three.
+  Examples:
+    - Lavanya: wrote and shared the outage post-mortem, but the CV
+      doesn't state the cause or any change in how others work.
+    - Preetham: names the bug's cause and fixed it, but there is no
+      write-up and no change in how others work.
+  A line like "ran retrospectives every sprint" (a routine meeting,
+  not a lesson from a specific failure) also scores 1.
+Weak (0):
+  - The CV lists only successes.
+  - General lines like "learned from setbacks" or "comfortable with
+    failure".
+  - "Killed a feature" with no stated cause and no one told.
+Weight: 10%
+
+---------------------------------------------------------------------
+5. Criterion name: Measured in the user's pain
+---------------------------------------------------------------------
+How to count:
+  List every quantified result in the candidate's two most recent
+  roles. Mark each one as user-side or company-side, using the lists
+  under HOW TO SCORE.
+What a strong candidate looks like (2):
+  At least two user-side results, and user-side results make up at
+  least half of all quantified results.
+  Examples:
+    - Lavanya: support tickets -60%, integration time -2 weeks,
+      delivery exceptions -28%, first shipment on time.
+    - Meghna: onboarding queries -35%, time-to-first-value -3 weeks,
+      zero delays on temperature-sensitive cargo.
+Partial (1):
+  At least one user-side result, but they make up less than half of
+  the results.
+  Examples:
+    - Vikram: support volume -22% and time-to-first-value -3 weeks,
+      against features shipped, ARR and adoption %.
+    - Rohan: support queries -35%, against processing lag and P1
+      counts.
+Weak (0):
+  No user-side results at all.
+  Examples:
+    - Rahul: pipeline, CAC, MQL conversion.
+    - Preetham: query time, uptime, processing lag.
+Weight: 25%
+
+PM weights: 25 + 20 + 20 + 10 + 25 = 100%
+
+
+=====================================================================
+SENIOR PRODUCT MANAGER
+=====================================================================
+Same five criteria. To score 2 for SPM, the CV must pass the PM "Strong"
+test AND the extra SPM bar. A CV that meets the PM "Strong" test but not
+the SPM bar scores 1.
+
+---------------------------------------------------------------------
+1. Criterion name: Fixed what they saw
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The PM "Strong" test, plus both of these:
+  - The problem was outside the candidate's assigned area, or the fix
+    needed a decision normally made above them.
+  - The CV shows they made that call alone, with wording like
+    "independently", "over a weekend", "without a product layer", and
+    no "proposed to" or "got approval".
+  Examples:
+    - Rohan: as an Operations Executive, built the team's tracking
+      system that nobody had assigned.
+    - Sunita: "independently redesigned the team's documentation intake
+      and filing workflow over a weekend."
+Partial (1):
+  The PM "Strong" test, but the fix stayed inside the candidate's own
+  assigned area, or the CV mentions getting sign-off first.
+Weak (0):
+  The PM "Partial" or "Weak" test.
+Weight: 30%
+
+---------------------------------------------------------------------
+2. Criterion name: The fix spread
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The PM "Strong" test, plus one of these:
+  - It was adopted outside the candidate's own team. Example: Lavanya,
+    "adopted by 2 other regional teams".
+  - It became a permanent part of how the company runs. Examples:
+    Rohan, "now a core platform feature"; Sunita, "retained
+    permanently by the team".
+Partial (1):
+  Adoption inside the candidate's own team only, with a group and a
+  number or time named.
+Weak (0):
+  The PM "Partial" or "Weak" test.
+Weight: 20%
+
+---------------------------------------------------------------------
+3. Criterion name: In the room when it broke
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The PM "Strong" test, plus the CV states that nobody sat above or
+  between the candidate and the outside party.
+  Examples:
+    - Meghna: "no escalation to management in the last 14 months."
+    - Aditya: "no account manager layer between the client and
+      execution."
+Partial (1):
+  The PM "Strong" test, but someone else led the resolution, or the
+  candidate escalated it.
+Weak (0):
+  The PM "Partial" or "Weak" test.
+Weight: 20%
+
+---------------------------------------------------------------------
+4. Criterion name: Post-mortem others now follow
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The PM "Strong" test, plus both of these:
+  - The candidate wrote the post-mortem themselves, not just
+    contributed to it.
+  - The lesson changed how people outside the candidate's own team
+    work: another function, customers or partners. The CV names the
+    step, check or decision those people now handle differently.
+  Illustrative CV line (none of the 8 hires reaches this level):
+    "Wrote the post-mortem on a failed carrier integration; sales now
+    confirms the customer's EDI format before contract signature."
+Partial (1):
+  The PM "Strong" test, but the change stayed inside the candidate's
+  own team (Aditya scores 1 at SPM level), or the candidate only
+  contributed to the write-up.
+Weak (0):
+  The PM "Partial" or "Weak" test.
+Weight: 15%
+
+---------------------------------------------------------------------
+5. Criterion name: Measured in the user's pain
+---------------------------------------------------------------------
+What a strong candidate looks like (2):
+  The PM "Strong" test, plus at least one user-side result held over a
+  stated period of 6 months or more.
+  Example:
+    - Meghna: "zero delays on temperature-sensitive cargo across 8
+      months handling this account."
+Partial (1):
+  The PM "Strong" test, but no user-side result has a stated period of
+  6 months or more.
+Weak (0):
+  The PM "Partial" or "Weak" test.
+Weight: 15%
+
+SPM weights: 30 + 20 + 20 + 15 + 15 = 100%
+
+
+=====================================================================
+CALIBRATION CHECK: the 8 hires scored on the PM rubric
+=====================================================================
+Scores are listed in criterion order 1-5.
+
+Name                   Rating    Scores (1-5)    Weighted /100
+Sunita Krishnamurthy   Exceeds   2  2  2  0  2   90.0
+Meghna Tiwari          Exceeds   1  2  2  1  2   82.5
+Lavanya Iyer           Exceeds   1  2  1  1  2   72.5
+Rohan Desai            Exceeds   2  2  1  0  1   67.5
+Aditya Shetty          Exceeds   1  2  2  2  0   62.5
+Vikram Nair            Meets     1  2  0  0  1   45.0
+Rahul Bose             Meets     1  2  0  0  0   32.5
+Preetham Rao           Below     1  0  1  1  0   27.5
+
+All five Exceeds hires score above both Meets hires, and both Meets
+hires score above the Below hire. For the two hires who were actually
+PMs, Lavanya scores 72.5 and Vikram scores 45.0.
+
+Caveat: the rubric was built from these same 8 profiles, so this check
+only shows the rubric matches the patterns it came from. It doesn't
+show that it predicts future performance. Re-check it against the next
+round of hires once their ratings are in.

@@ -1,0 +1,173 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body>
+<title>Kargo Hiring Components Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#12213a; --muted:#56657c; --line:#d9e0ea; --head:#13294b; --head-ink:#ffffff;
+  --arrow:#2b3f60;
+  --l0:#eaf1ff; --l1:#fff8e6; --l2:#fbeef6; --l3:#eaf7ef; --l4:#eef0f4;
+  --n0:#dfe8ff; --n0b:#4a6fd8; --n1:#ffefc7; --n1b:#d49a1c; --n2:#fde0ef; --n2b:#c8438a; --n3:#d8f1e1; --n3b:#2f9a5c; --n4:#e3e7ef; --n4b:#6b7a93;
+  --gate:#c0392b; --gate-bg:#fdecea; --cut-bg:#fff4e8; --cut-line:#e8a45c;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1522; --paper:#141d2d; --ink:#e7ecf5; --muted:#9aa8bf; --line:#27344a; --head:#0a1a33; --head-ink:#e7ecf5;
+  --arrow:#9fb2d3;
+  --l0:#15223a; --l1:#221f14; --l2:#24172a; --l3:#13241c; --l4:#1a2030;
+  --n0:#1d3057; --n0b:#7a9bff; --n1:#3a2f12; --n1b:#e5b34a; --n2:#3d1c33; --n2b:#ec7cb9; --n3:#173a28; --n3b:#5fcf8e; --n4:#262e40; --n4b:#98a6bf;
+  --gate:#ff8a7a; --gate-bg:#3a1b1a; --cut-bg:#2a2016; --cut-line:#b77a37; color-scheme: dark; }}
+:root[data-theme="dark"]{
+  --bg:#0e1522; --paper:#141d2d; --ink:#e7ecf5; --muted:#9aa8bf; --line:#27344a; --head:#0a1a33; --head-ink:#e7ecf5;
+  --arrow:#9fb2d3;
+  --l0:#15223a; --l1:#221f14; --l2:#24172a; --l3:#13241c; --l4:#1a2030;
+  --n0:#1d3057; --n0b:#7a9bff; --n1:#3a2f12; --n1b:#e5b34a; --n2:#3d1c33; --n2b:#ec7cb9; --n3:#173a28; --n3b:#5fcf8e; --n4:#262e40; --n4b:#98a6bf;
+  --gate:#ff8a7a; --gate-bg:#3a1b1a; --cut-bg:#2a2016; --cut-line:#b77a37; color-scheme: dark; }
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:grid;gap:22px}
+header h1{font-size:clamp(22px,3vw,30px);margin:0 0 4px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:75ch}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.map{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+.map svg{display:block;min-width:1100px;width:100%;height:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.panel h2{font-size:15px;margin:0 0 8px}
+.panel ol,.panel ul{margin:0;padding-left:20px;display:grid;gap:5px}
+.panel p{margin:0 0 8px}
+.cut{background:var(--cut-bg);border-color:var(--cut-line)}
+.tag{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;padding:1px 6px;border-radius:5px;background:var(--l4);white-space:nowrap}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">MESA · Case 2 · Kargo</div>
+    <h1>Hiring Dashboard Components Map</h1>
+    <p>How one CV moves from Arjun's upload to a sent email. Personal details split off at the start and never reach the AI. Nothing is sent until Arjun confirms.</p>
+  </header>
+
+  <div class="map" role="img" aria-label="Swimlane components map across Trigger, Input, Context, Processing, AI and Output, for Founder, System, AI, Email service and Database">
+    <svg id="svg" viewBox="0 0 1400 812" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>The flow, step by step</h2>
+      <ol>
+        <li>Arjun uploads a CV and picks the role applied for.</li>
+        <li>The file and the role enter the system.</li>
+        <li>Code parses the text and separates name, email and phone from the CV content.</li>
+        <li>Personal details go to a private table. The rubric (built beforehand from the 8 hire profiles) sits in the database.</li>
+        <li>Gemini sees only the redacted content and the rubric. It rates every criterion for <b>both</b> PM and SPM, with a one-line reason each.</li>
+        <li>Code does the maths: weighted totals, ranking per role, and the line (top 5 per role).</li>
+        <li>Gemini writes a 3-sentence brief for the top 5 and a draft email for everyone, with <span class="tag">[NAME]</span> as a placeholder.</li>
+        <li>Scores, briefs and drafts are saved.</li>
+        <li>Arjun reads the ranked dashboard and confirms each email. This is the human gate.</li>
+        <li>On confirm, code swaps in the real name, Resend sends it, and the record is marked sent.</li>
+      </ol>
+    </section>
+    <section class="panel cut">
+      <h2>The Cut</h2>
+      <p><b>Asked for:</b> emails to selected and rejected candidates going out without Arjun managing them.</p>
+      <p><b>Killed by Check 06 and Check 09:</b> a wrongly rejected candidate never comes back, so the mistake is invisible, and a rejection nobody signed off has no one accountable for it.</p>
+      <p><b>Built instead:</b> the system drafts every email; Arjun confirms each one. It ranks and explains. It never rejects on his behalf.</p>
+    </section>
+    <section class="panel">
+      <h2>What changed from the class map</h2>
+      <ul>
+        <li>A <b>Database</b> lane, so the private personal-details table and the rubric are visible.</li>
+        <li>Scoring split in two: <b>AI rates</b> the evidence, <b>code adds it up</b>. Scores stay reproducible and explainable.</li>
+        <li>Top-5 line and <span class="tag">[NAME]</span> swap shown explicitly.</li>
+        <li>Confirm drawn as its own gate before anything reaches Resend.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const svg = document.getElementById('svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent||svg).appendChild(e); return e; };
+  const COLS = ['Trigger','Input','Context','Processing','AI','Output'];
+  const LANES = [['Founder','Arjun'],['System','App backend'],['AI','Gemini Flash'],['Email service','Resend'],['Database','Supabase']];
+  const X0 = 150, CW = 208, HY = 56, LH = 151;
+  const cx = i => X0 + CW*i + CW/2, cy = j => HY + LH*j + LH/2;
+
+  el('rect',{x:0,y:0,width:1400,height:812,fill:'var(--paper)'});
+  LANES.forEach((l,j)=>{
+    el('rect',{x:X0,y:HY+LH*j,width:1250,height:LH,fill:`var(--l${j})`});
+    el('rect',{x:0,y:HY+LH*j,width:X0,height:LH,fill:'var(--head)'});
+    const t = el('text',{x:X0/2,y:cy(j)-4,'text-anchor':'middle',fill:'var(--head-ink)','font-size':16,'font-weight':700}); t.textContent = l[0];
+    const s = el('text',{x:X0/2,y:cy(j)+16,'text-anchor':'middle',fill:'var(--head-ink)','font-size':12.5,opacity:.75}); s.textContent = l[1];
+    el('line',{x1:0,x2:1400,y1:HY+LH*j,y2:HY+LH*j,stroke:'var(--line)'});
+  });
+  el('rect',{x:0,y:0,width:1400,height:HY,fill:'var(--head)'});
+  const a = el('text',{x:X0/2,y:34,'text-anchor':'middle',fill:'var(--head-ink)','font-size':15,'font-weight':600}); a.textContent='Actor';
+  COLS.forEach((c,i)=>{
+    const t = el('text',{x:cx(i),y:34,'text-anchor':'middle',fill:'var(--head-ink)','font-size':15,'font-weight':600}); t.textContent=c;
+    if(i) el('line',{x1:X0+CW*i,x2:X0+CW*i,y1:HY,y2:812,stroke:'var(--line)'});
+  });
+
+  const defs = el('defs',{});
+  const m = el('marker',{id:'ah',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+  el('path',{d:'M0,0 L10,5 L0,10 z',fill:'var(--arrow)'},m);
+
+  const arrows = [
+    ['M345,131 H372',''],
+    ['M552,131 H575 V281 H580','',],
+    ['M640,329 V664','personal details',648,560,'start'],
+    ['M762,300 H775 V431 H788','content only',770,352,'end'],
+    ['M763,762 H830 V479','rubric',838,610,'start'],
+    ['M878,383 V329','ratings + reasons',886,360,'start'],
+    ['M968,281 H1086 V383','',],
+    ['M1086,479 V691','',],
+    ['M1176,716 H1190 V131 H1204','loads',1182,560,'end'],
+    ['M1294,187 V241','Confirm',1302,220,'start'],
+    ['M1294,321 V533','',],
+    ['M1294,629 V691','status = sent',1302,664,'start'],
+  ];
+  arrows.forEach(([d,label,lx,ly,anc])=>{
+    el('path',{d,fill:'none',stroke:'var(--arrow)','stroke-width':1.6,'stroke-dasharray':'5 4','marker-end':'url(#ah)'});
+    if(label){ const t = el('text',{x:lx,y:ly,'text-anchor':anc,fill:'var(--muted)','font-size':12,'font-family':'IBM Plex Mono, ui-monospace, monospace'}); t.textContent=label; }
+  });
+
+  const nodes = [
+    {n:1,x:cx(0),y:cy(0),w:182,h:96,l:0,t:['Uploads CV and','selects applied role','(PM / SPM)']},
+    {n:2,x:cx(1),y:cy(0),w:180,h:80,l:0,t:['CV file (PDF / DOCX)','+ applied role']},
+    {n:3,x:cx(2),y:cy(1),w:184,h:96,l:1,t:['Parses text, splits','name · email · phone','from CV content']},
+    {n:4,x:cx(2),y:690,w:186,h:52,l:4,t:['Private: personal details','never sent to AI'],small:true},
+    {n:null,x:cx(2),y:762,w:186,h:56,l:4,t:['Rubric: PM + SPM criteria','built from 8 hire profiles'],small:true},
+    {n:5,x:cx(3),y:cy(2),w:180,h:96,l:2,t:['Rates redacted CV on','every criterion, BOTH','roles + 1-line reason']},
+    {n:6,x:cx(3),y:cy(1),w:180,h:96,l:1,t:['Weighted totals,','ranks per role,','top 5 = above the line']},
+    {n:7,x:cx(4),y:cy(2),w:180,h:96,l:2,t:['Top 5: 3-sentence brief','Everyone: draft email','invite / warm rejection'],foot:'uses [NAME]'},
+    {n:8,x:cx(4),y:cy(4),w:180,h:80,l:4,t:['Saves scores,','briefs and drafts']},
+    {n:9,x:cx(5),y:cy(0),w:184,h:112,l:0,gate:true,t:['Ranked dashboard','scores · reasons · brief','· draft email','Arjun confirms each']},
+    {n:10,x:cx(5),y:cy(1),w:180,h:80,l:1,t:['Swaps [NAME] for real','name from private table']},
+    {n:null,x:cx(5),y:cy(3),w:180,h:96,l:3,t:['Sends email via Resend','only after Confirm']},
+    {n:null,x:cx(5),y:cy(4),w:180,h:80,l:4,t:['Marks sent,','logs decision + time']},
+  ];
+  nodes.forEach(o=>{
+    const g = el('g',{});
+    const x = o.x - o.w/2, y = o.y - o.h/2;
+    el('rect',{x,y,width:o.w,height:o.h,rx:10,fill:o.gate?'var(--gate-bg)':`var(--n${o.l})`,stroke:o.gate?'var(--gate)':`var(--n${o.l}b)`,'stroke-width':o.gate?2.6:1.6},g);
+    const fs = o.small?12.5:13.5, lh = o.small?16:18;
+    const total = o.t.length*lh + (o.foot?16:0);
+    let ty = o.y - total/2 + lh*0.72;
+    o.t.forEach((line,i)=>{
+      const t = el('text',{x:o.x,y:ty,'text-anchor':'middle',fill:'var(--ink)','font-size':fs,'font-weight':(o.gate&&i===o.t.length-1)?700:500},g);
+      t.textContent = line; ty += lh;
+    });
+    if(o.foot){ const t = el('text',{x:o.x,y:ty+1,'text-anchor':'middle',fill:'var(--muted)','font-size':11.5,'font-family':'IBM Plex Mono, ui-monospace, monospace'},g); t.textContent=o.foot; }
+    if(o.n){
+      el('circle',{cx:x+2,cy:y+2,r:11,fill:'var(--head)'},g);
+      const t = el('text',{x:x+2,y:y+6.5,'text-anchor':'middle',fill:'var(--head-ink)','font-size':11.5,'font-weight':700},g); t.textContent=o.n;
+    }
+    if(o.gate){
+      el('rect',{x:o.x-46,y:y-11,width:92,height:20,rx:10,fill:'var(--gate)'},g);
+      const t = el('text',{x:o.x,y:y+3.5,'text-anchor':'middle',fill:'var(--paper)','font-size':10.5,'font-weight':700,'letter-spacing':'.08em'},g); t.textContent='HUMAN GATE';
+    }
+  });
+})();
+</script>
+</body></html>

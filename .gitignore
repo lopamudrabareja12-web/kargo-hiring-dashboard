@@ -1,0 +1,16 @@
+# secrets
+.env
+.env.local
+.env.*.local
+# candidate data: never commit CVs
+applications/*
+!applications/README.md
+# build
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+.DS_Store
