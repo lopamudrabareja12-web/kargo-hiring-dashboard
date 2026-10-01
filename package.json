@@ -14,7 +14,8 @@
     "redraft": "tsx --env-file=.env.local scripts/redraft.ts",
     "calibrate": "tsx --env-file=.env.local scripts/calibrate.ts",
     "rescore-check": "tsx --env-file=.env.local scripts/rescore-check.ts",
-    "rescore": "tsx --env-file=.env.local scripts/rescore.ts"
+    "rescore": "tsx --env-file=.env.local scripts/rescore.ts",
+    "check": "tsx --env-file=.env.local scripts/check-connections.ts"
   },
   "engines": {
     "node": ">=20"

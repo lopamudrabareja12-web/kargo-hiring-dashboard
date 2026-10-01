@@ -41,7 +41,7 @@ cp .env.example .env.local      # then fill in the values
 | `SUPABASE_URL` | yes | Supabase → Project Settings → API → Project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | The **service-role / secret** key. Server-side only, never in the browser. |
 | `GEMINI_API_KEY` | yes | Google AI Studio / Gemini API key (billing enabled) |
-| `GEMINI_MODEL` | no | Default `gemini-2.5-flash` |
+| `GEMINI_MODEL` | no | Default `gemini-3.5-flash` (`gemini-2.5-flash` is closed to new API users; newer 3.6–3.8 were often overloaded at build time). |
 | `GEMINI_THINKING_BUDGET` | no | Thinking tokens per call. Default `1024`; `0` = off, `-1` = automatic |
 | `DASHBOARD_PASSWORD` | yes | The login password. Make it long. |
 | `SCHEDULING_LINK` | for invites | Arjun's booking link; replaces `{{SCHEDULING_LINK}}` at send time |

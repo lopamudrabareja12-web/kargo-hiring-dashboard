@@ -92,10 +92,15 @@ export async function generateJson<T>(call: JsonCall<T>): Promise<T> {
       text = res.text;
     } catch (err) {
       const e = controller.signal.aborted ? new Error("timed out") : err;
-      if (isTransient(e) && transientRetries < 2 && deadline - Date.now() > 8_000) {
-        transientRetries++;
-        await sleep(transientRetries === 1 ? 1_500 : 4_000);
-        continue;
+      if (isTransient(e) && transientRetries < 3) {
+        // Google's 429 says how long to wait ("retryDelay":"23s"); otherwise back off 2s, 5s, 10s.
+        const hinted = Number(String((e as Error)?.message ?? "").match(/retryDelay"?\s*:\s*"?(\d+(?:\.\d+)?)s/)?.[1]);
+        const wait = Number.isFinite(hinted) && hinted > 0 ? hinted * 1000 + 500 : [2_000, 5_000, 10_000][transientRetries];
+        if (deadline - Date.now() - wait > 8_000) {
+          transientRetries++;
+          await sleep(wait);
+          continue;
+        }
       }
       throw new AiError(`${call.label}: ${describe(e)}`);
     } finally {

@@ -17,6 +17,19 @@ function expectedFromRubric(text: string) {
   return out;
 }
 
+/** Google's capacity is spiky: retry a whole call a few times before giving up. */
+async function patient<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (attempt >= 4 || !/503|429|server error|rate limit|ran out of time|too long/i.test((e as Error).message)) throw e;
+      process.stdout.write(`\n  (${label}: Gemini busy, waiting 20 s, attempt ${attempt + 1}/4)`);
+      await new Promise((r) => setTimeout(r, 20_000));
+    }
+  }
+}
+
 async function main() {
   const { version, criteria, text } = localRubric();
   const expected = expectedFromRubric(text);
@@ -30,15 +43,16 @@ async function main() {
       const raw = await extractText(readFileSync(`context/hires/${f}`), f);
       const { pii, cvContent } = extractAndRedact(raw, f);
       assertNoPii(cvContent, pii.name);
-      const pm = await rateCv({ role: "PM", cv: cvContent, guardName: pii.name, version, criteria });
+      const pm = await patient(`${f} PM`, () => rateCv({ role: "PM", cv: cvContent, guardName: pii.name, version, criteria }));
       const pmScores = new Map(pm.rows.map((r) => [r.criterion_id, { score: r.score, reason: r.reason }]));
-      const spm = await rateCv({ role: "SPM", cv: cvContent, guardName: pii.name, version, criteria, pmScores });
+      const spm = await patient(`${f} SPM`, () => rateCv({ role: "SPM", cv: cvContent, guardName: pii.name, version, criteria, pmScores }));
       const exp = expected.get((pii.name ?? "").toLowerCase());
       results.push({ name: pii.name ?? f, rating: exp?.rating ?? "?", pm: pm.rows.map((r) => r.score), pmTotal: pm.total, spmTotal: spm.total, exp: exp?.scores, expTotal: exp?.total });
       process.stdout.write(".");
     }
   }
-  await Promise.all([worker(), worker()]);
+  // One at a time: free-tier keys have low per-minute limits.
+  await worker();
   results.sort((a, b) => b.pmTotal - a.pmTotal);
 
   console.log("\n\nName                    Rating    PM scores    PM total | expected       | SPM total");
