@@ -11,7 +11,7 @@ export function NameForm({ id, current, required }: { id: string; current: strin
   const [err, setErr] = useState<string | null>(null);
   return (
     <form
-      className="card border-amber-300 bg-amber-50"
+      className="card border-sun-100 bg-sun-50"
       onSubmit={async (e) => {
         e.preventDefault();
         setErr(null);
@@ -41,7 +41,7 @@ export function NameForm({ id, current, required }: { id: string; current: strin
         <input className="input max-w-sm bg-white" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required />
         <button className="btn-primary" disabled={!!busy}>{busy ?? (required ? "Save and score" : "Save")}</button>
       </div>
-      {err && <p className="mt-1 text-xs text-red-700">{err}</p>}
+      {err && <p className="mt-1 text-xs text-clay-700">{err}</p>}
     </form>
   );
 }
@@ -53,7 +53,7 @@ export function DeleteButton({ id }: { id: string }) {
   const [err, setErr] = useState<string | null>(null);
   if (!confirming) return <button className="btn-danger" onClick={() => setConfirming(true)}>Delete candidate</button>;
   return (
-    <span className="inline-flex items-center gap-2 rounded border border-red-300 bg-red-50 px-2 py-1 text-xs text-red-900">
+    <span className="inline-flex items-center gap-2 rounded border border-clay-100 bg-clay-50 px-2 py-1 text-xs text-clay-700">
       Delete every record for this person (CV text, contact details, scores, emails, history)? This can&apos;t be undone.
       <button
         className="btn-danger"
@@ -73,7 +73,7 @@ export function DeleteButton({ id }: { id: string }) {
         {busy ? "Deleting…" : "Yes, delete"}
       </button>
       <button className="btn" onClick={() => setConfirming(false)}>Cancel</button>
-      {err && <span className="text-red-700">{err}</span>}
+      {err && <span className="text-clay-700">{err}</span>}
     </span>
   );
 }

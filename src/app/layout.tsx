@@ -1,26 +1,19 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { NavBar } from "@/components/NavBar";
 import "./globals.css";
+
+const body = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const display = Fraunces({ subsets: ["latin"], variable: "--font-display-face", display: "swap", weight: ["500", "600", "700"] });
 
 export const metadata: Metadata = { title: "Kargo Hiring", robots: { index: false, follow: false } };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${body.variable} ${display.variable}`}>
       <body>
-        <header className="border-b border-neutral-200">
-          <nav className="mx-auto flex max-w-7xl items-center gap-5 px-4 py-2.5 text-sm">
-            <span className="font-semibold">Kargo Hiring</span>
-            <Link href="/" className="hover:underline">Dashboard</Link>
-            <Link href="/upload" className="hover:underline">Upload CVs</Link>
-            <Link href="/rubric" className="hover:underline">Rubric</Link>
-            <span className="ml-auto text-xs text-neutral-500">The system recommends. Arjun decides.</span>
-            <form action="/api/logout" method="post">
-              <button className="text-xs text-neutral-500 hover:underline">Log out</button>
-            </form>
-          </nav>
-        </header>
-        <main className="mx-auto max-w-7xl px-4 py-5">{children}</main>
+        <NavBar />
+        <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
       </body>
     </html>
   );

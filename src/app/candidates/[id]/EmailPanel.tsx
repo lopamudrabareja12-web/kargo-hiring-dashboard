@@ -66,7 +66,7 @@ export function EmailPanel({
 
   if (email.sent_at) {
     return (
-      <div className="card border-green-300 bg-green-50">
+      <div className="card border-leaf-100 bg-leaf-50">
         <h2>Email: Sent</h2>
         <p className="mt-1 text-xs text-neutral-700">
           Sent {new Date(email.sent_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} to <b>{email.sent_to}</b>
@@ -84,27 +84,27 @@ export function EmailPanel({
     <div className="card space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <h2>Email draft</h2>
-        <span className={`chip ${email.type === "invite" ? "bg-green-100 text-green-800" : "bg-neutral-100"}`}>{kindLabels[email.kind]}</span>
-        {email.edited && <span className="chip bg-blue-100 text-blue-800">edited by you</span>}
-        {email.override_kind && <span className="chip bg-purple-100 text-purple-800">your override</span>}
+        <span className={`chip ${email.type === "invite" ? "bg-leaf-100 text-leaf-800" : "bg-neutral-100"}`}>{kindLabels[email.kind]}</span>
+        {email.edited && <span className="chip bg-plum-50 text-plum-700">edited by you</span>}
+        {email.override_kind && <span className="chip bg-plum-50 text-plum-700">your override</span>}
         {recommendedKind && <span className="text-xs text-neutral-500">System recommends: {kindLabels[recommendedKind]}</span>}
       </div>
 
       {email.outdated && (
-        <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900">
+        <div className="rounded-2xl border border-clay-100 bg-clay-50 px-3 py-2 text-sm text-clay-700">
           <b>Draft outdated.</b> Their position changed after you edited this draft: the system now recommends &ldquo;{recommendedKind && kindLabels[recommendedKind]}&rdquo;.
           Your edits were kept. Regenerate, override, or send as is.
         </div>
       )}
-      {email.send_error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-900">Last send failed: {email.send_error}</p>}
+      {email.send_error && <p className="rounded-2xl bg-clay-50 px-3 py-2 text-sm text-clay-700">Last send failed: {email.send_error}</p>}
 
       {preview ? (
-        <div className="rounded border-2 border-neutral-900 p-3">
+        <div className="rounded-2xl border-2 border-leaf-500 p-3">
           <p className="text-sm font-semibold">Confirm this email. It goes out exactly as shown.</p>
           <dl className="mt-2 grid grid-cols-[5rem_1fr] gap-y-1 text-sm">
             <dt className="text-neutral-500">From</dt><dd>{preview.from}</dd>
             <dt className="text-neutral-500">To</dt>
-            <dd><b>{preview.to}</b>{preview.overridden && <span className="ml-2 text-xs text-amber-800">(test override; real recipient {preview.originalTo})</span>}</dd>
+            <dd><b>{preview.to}</b>{preview.overridden && <span className="ml-2 text-xs text-sun-800">(test override; real recipient {preview.originalTo})</span>}</dd>
             <dt className="text-neutral-500">Subject</dt><dd>{preview.subject}</dd>
           </dl>
           <pre className="mt-2 whitespace-pre-wrap rounded bg-neutral-50 p-3 font-sans text-sm">{preview.body}</pre>
@@ -177,7 +177,7 @@ export function EmailPanel({
           </div>
 
           {overrideOpen && (
-            <div className="rounded border border-purple-300 bg-purple-50 p-3 text-sm">
+            <div className="rounded-2xl border border-plum-100 bg-plum-50 p-3 text-sm">
               <p className="font-medium">Override the recommendation</p>
               <p className="text-xs text-neutral-600">Your reason goes into the decision log. The draft is rewritten to match.</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -216,7 +216,7 @@ export function EmailPanel({
           )}
         </>
       )}
-      {err && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-800">{err}</p>}
+      {err && <p className="rounded-2xl bg-clay-50 px-3 py-2 text-sm text-clay-700">{err}</p>}
       <p className="text-xs text-neutral-500">One email per confirm. Nothing is ever sent automatically, in bulk or on a schedule.</p>
     </div>
   );

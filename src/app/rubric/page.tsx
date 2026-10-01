@@ -18,7 +18,9 @@ export default async function RubricPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1>Rubric {active.label}</h1>
+        <p className="eyebrow">The scoring standard · read-only</p>
+        <h1 className="mt-1">What a great Kargo PM looks like</h1>
+        <p className="mt-1 text-muted">Rubric {active.label}, built from the patterns in your 8 past hires.</p>
         <p className="mt-1 text-sm text-neutral-600">
           Read-only. Source: <code>{active.source_file}</code> · built from Kargo&apos;s 8 past hires, not the job descriptions.
           Scale 0–{active.max_score} per criterion; total = sum of (score ÷ {active.max_score} × weight), computed in code.
@@ -34,16 +36,19 @@ export default async function RubricPage() {
           const rc = criteria.filter((c) => c.role === role);
           return (
             <div key={role} className="card">
-              <h2>{ROLE_LABEL[role]} · weights sum to {rc.reduce((s, c) => s + Number(c.weight), 0)}%</h2>
+              <h2>{ROLE_LABEL[role]}</h2><p className="text-xs text-muted">5 criteria · weights sum to {rc.reduce((s, c) => s + Number(c.weight), 0)}% · click one to read the full test</p>
               {active.role_notes?.[role] && <p className="mt-1 whitespace-pre-wrap text-xs text-neutral-600">{active.role_notes[role]}</p>}
-              <ol className="mt-3 space-y-2">
+              <ol className="mt-3 space-y-1">
                 {rc.map((c) => (
                   <li key={c.id}>
                     <details>
-                      <summary className="cursor-pointer text-sm">
-                        <b>{c.sort_order}. {c.name}</b> <span className="text-neutral-600">({Number(c.weight)}%)</span>
+                      <summary className="flex cursor-pointer list-none items-center gap-3 rounded-2xl px-2 py-2 hover:bg-cream">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-50 text-xs font-bold text-leaf-700">{c.sort_order}</span>
+                        <span className="flex-1 text-sm font-semibold">{c.name}</span>
+                        <span className="h-2 w-20 rounded-full bg-sand"><span className="block h-2 rounded-full bg-leaf-500" style={{ width: `${Number(c.weight) * 2.5}%` }} /></span>
+                        <span className="w-10 text-right text-sm font-semibold">{Number(c.weight)}%</span>
                       </summary>
-                      <pre className="mt-1 whitespace-pre-wrap rounded bg-neutral-50 p-2 font-sans text-xs">{c.description}</pre>
+                      <pre className="mb-2 mt-1 whitespace-pre-wrap rounded-2xl bg-cream p-4 font-sans text-xs leading-relaxed">{c.description}</pre>
                     </details>
                   </li>
                 ))}
@@ -65,7 +70,7 @@ export default async function RubricPage() {
           <tbody>
             {versions.map((v) => (
               <tr key={v.id}>
-                <td className="pr-6">{v.label} {v.is_active && <span className="chip bg-green-100 text-green-800">active</span>}</td>
+                <td className="pr-6">{v.label} {v.is_active && <span className="chip bg-leaf-100 text-leaf-800">active</span>}</td>
                 <td className="pr-6"><code>{v.source_file}</code> <span className="text-xs text-neutral-400">{v.content_hash.slice(0, 8)}</span></td>
                 <td className="pr-6">{new Date(v.created_at).toLocaleDateString("en-IN")}</td>
                 <td>{counts.get(v.id) ?? 0}</td>

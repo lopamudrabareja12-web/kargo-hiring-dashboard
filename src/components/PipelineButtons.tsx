@@ -29,7 +29,7 @@ export function RetryButton({ id, rescore = false, label }: { id: string; rescor
   return (
     <span className="inline-flex items-center gap-2">
       <button className="btn" disabled={!!busy} onClick={go}>{busy ?? label ?? (rescore ? "Re-score" : "Retry")}</button>
-      {err && <span className="text-xs text-red-700">{err}</span>}
+      {err && <span className="text-xs text-clay-700">{err}</span>}
     </span>
   );
 }
@@ -58,7 +58,7 @@ export function SyncButton() {
       >
         {busy ?? "Generate now"}
       </button>
-      {err && <span className="text-xs text-red-700">{err}</span>}
+      {err && <span className="text-xs text-clay-700">{err}</span>}
     </span>
   );
 }
