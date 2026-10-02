@@ -137,3 +137,25 @@ describe("guardrail and the rubric's own examples", () => {
     expect(() => assertNoPii(`${rubricText}\nRahul ran ops.`, "Rahul Sharma", [rubricText])).toThrow(/name/);
   });
 });
+
+import { formatEmailBody } from "@/lib/prompts";
+
+describe("formatEmailBody", () => {
+  const raw = "Hi [NAME], I enjoyed your background. The tracker stood out. You cut exceptions by 28%. The dashboard spread to two teams. I would like to chat about the role. Please book a time that works for you here: {{SCHEDULING_LINK}}. Arjun Mehta, Founder, Kargo";
+  const out = formatEmailBody(raw, "Arjun Mehta, Founder, Kargo");
+  it("puts the greeting, link and sign-off on their own lines", () => {
+    expect(out.startsWith("Hi [NAME],\n\n")).toBe(true);
+    expect(out).toMatch(/\n\n\{\{SCHEDULING_LINK\}\}\n\n/);
+    expect(out.endsWith("\n\nArjun Mehta, Founder, Kargo")).toBe(true);
+  });
+  it("never leaves a full stop attached to the link", () => {
+    expect(out).not.toMatch(/\{\{SCHEDULING_LINK\}\}[.,;]/);
+  });
+  it("breaks a wall of text into paragraphs", () => {
+    expect(out.split("\n\n").length).toBeGreaterThanOrEqual(5);
+  });
+  it("leaves an already well-formatted email alone", () => {
+    const good = "Hi [NAME],\n\nThanks for applying.\n\nWe are not moving forward.\n\nArjun Mehta, Founder, Kargo";
+    expect(formatEmailBody(good, "Arjun Mehta, Founder, Kargo")).toBe(good);
+  });
+});

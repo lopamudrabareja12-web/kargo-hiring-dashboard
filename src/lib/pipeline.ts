@@ -414,7 +414,7 @@ async function generateEmail(ctx: DraftContext, kind: EmailKind, guardName: stri
     system: emailSystem(env.senderName()),
     prompt: emailPrompt({ kind, appliedRole: c.applied_role, cv: c.cv_content, strengths, senderName: env.senderName(), jd }),
     schema: emailSchema,
-    validate: makeEmailValidator(kind),
+    validate: makeEmailValidator(kind, env.senderName()),
     guardName,
   });
   must(

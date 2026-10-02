@@ -15,7 +15,8 @@
     "calibrate": "tsx --env-file=.env.local scripts/calibrate.ts",
     "rescore-check": "tsx --env-file=.env.local scripts/rescore-check.ts",
     "rescore": "tsx --env-file=.env.local scripts/rescore.ts",
-    "check": "tsx --env-file=.env.local scripts/check-connections.ts"
+    "check": "tsx --env-file=.env.local scripts/check-connections.ts",
+    "load:samples": "tsx --env-file=.env.local scripts/load-samples.ts"
   },
   "engines": {
     "node": ">=20"

@@ -49,6 +49,6 @@ export function evidenceInCv(evidence: string, cvContent: string): boolean {
   const cv = normalise(cvContent);
   if (cv.includes(e)) return true;
   // Allow quotes stitched with "..." if every piece is present.
-  const parts = e.split(/\s*(?:\.\.\.|…)\s*/).filter((p) => p.length > 8);
+  const parts = e.split(/\s*(?:\.\.\.|…)\s*/).map((p) => p.replace(/^[.,;:\s-]+|[.,;:\s-]+$/g, "")).filter((p) => p.length > 8);
   return parts.length > 1 && parts.every((p) => cv.includes(p));
 }

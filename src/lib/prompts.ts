@@ -246,7 +246,7 @@ export function emailSystem(senderName: string): string {
   return `You draft candidate emails for Arjun Mehta, founder of Kargo (logistics SaaS, Mumbai). Arjun reads and approves every email before it is sent.
 Rules:
 - Write [NAME] (exactly, with the square brackets) wherever the candidate's name goes, starting with "Hi [NAME],". You do not know their name; never invent one.
-- Plain text, no markdown, no emojis. Warm, direct, human. No HR boilerplate ("we regret to inform", "after careful consideration", "we received a high volume").
+- Plain text, no markdown, no emojis. Format with line breaks: "Hi [NAME]," on its own line, a blank line, two or three short paragraphs separated by blank lines, the booking placeholder on its own line, a blank line, then the sign-off on its own line. Warm, direct, human. No HR boilerplate ("we regret to inform", "after careful consideration", "we received a high volume").
 - Refer to one or two concrete things from their CV, in plain words.
 - No false promises: never say you will keep their CV on file, be in touch about future roles, or that the decision was close unless told so.
 - Sign off with: "${senderName}".
@@ -298,12 +298,39 @@ function checkNoContactPatterns(text: string) {
   EMAIL_RE.lastIndex = 0;
 }
 
-export function makeEmailValidator(kind: EmailKind) {
+/**
+ * Tidy the model's body into a readable plain-text email: greeting on its own line, short
+ * paragraphs, the booking link on its own line (no trailing full stop), sign-off on its own line.
+ */
+export function formatEmailBody(raw: string, senderName: string): string {
+  let b = raw.replace(/\r\n?/g, "\n").trim();
+  b = b.replace(/^(Hi \[NAME\],?)[ \t]*/i, "$1\n\n");
+  b = b.replace(/[ \t]*(\{\{\s*SCHEDULING_LINK\s*\}\})[.,;]?[ \t]*/g, "\n\n$1\n\n");
+  if (senderName) {
+    const esc = senderName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    b = b.replace(new RegExp(`[\\s,]*(?:(?:Best|Warm regards|Regards|Thanks|Cheers|Warmly)[,.]?\\s*)?${esc}\\s*$`, "i"), `\n\n${senderName}`);
+  }
+  b = b.replace(/[ \t]*\n[ \t]*/g, "\n").replace(/\n{3,}/g, "\n\n");
+  // Break a wall of text into paragraphs of two sentences.
+  b = b
+    .split("\n\n")
+    .map((block) => {
+      const sentences = block.split(/(?<=[.!?])\s+(?=[A-Z\[])/);
+      if (block.includes("\n") || block.includes("{{") || sentences.length <= 3) return block;
+      const out: string[] = [];
+      for (let i = 0; i < sentences.length; i += 2) out.push(sentences.slice(i, i + 2).join(" "));
+      return out.join("\n\n");
+    })
+    .join("\n\n");
+  return b.trim();
+}
+
+export function makeEmailValidator(kind: EmailKind, senderName = "") {
   return (data: unknown): { subject: string; body: string } => {
     const p = z.object({ subject: z.string().min(3), body: z.string().min(40) }).safeParse(data);
     if (!p.success) throw new OutputInvalid("it must have a subject and a body");
     const subject = p.data.subject.trim().replace(/\[NAME\]/g, "").replace(/\s{2,}/g, " ").trim();
-    const body = p.data.body.trim();
+    const body = formatEmailBody(p.data.body, senderName);
     if (!body.includes("[NAME]")) throw new OutputInvalid('the body must use the placeholder [NAME] for the name');
     const limit = kind === "rejection" ? REJECTION_MAX_WORDS : INVITE_MAX_WORDS;
     const words = wordCount(body);

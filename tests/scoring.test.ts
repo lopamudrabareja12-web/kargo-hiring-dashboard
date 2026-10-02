@@ -50,3 +50,10 @@ describe("evidenceInCv", () => {
     expect(evidenceInCv("", cv)).toBe(false);
   });
 });
+
+describe("evidenceInCv with elisions", () => {
+  it("accepts a quote shortened with an ellipsis and trailing full stop", () => {
+    const cv = "Built a daily visibility dashboard for the operations team — adopted by 2 other regional teams";
+    expect(evidenceInCv("Built a daily visibility dashboard for the operations team... adopted by 2 other regional teams.", cv)).toBe(true);
+  });
+});
