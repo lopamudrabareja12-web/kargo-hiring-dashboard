@@ -16,7 +16,8 @@
     "rescore-check": "tsx --env-file=.env.local scripts/rescore-check.ts",
     "rescore": "tsx --env-file=.env.local scripts/rescore.ts",
     "check": "tsx --env-file=.env.local scripts/check-connections.ts",
-    "load:samples": "tsx --env-file=.env.local scripts/load-samples.ts"
+    "load:samples": "tsx --env-file=.env.local scripts/load-samples.ts",
+    "load:applications": "tsx --env-file=.env.local scripts/load-applications.ts"
   },
   "engines": {
     "node": ">=20"

@@ -8,6 +8,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { db, must } from "../src/lib/db";
 import { EMAIL_RE } from "../src/lib/pii";
+const LINK_RE = /(?:https?:\/\/|www\.)\S+/gi;
 
 async function toText(path: string, name: string): Promise<string> {
   if (/\.(txt|md)$/i.test(name)) return readFileSync(path, "utf8");
@@ -30,6 +31,7 @@ async function main() {
     // JDs can contain recruiter contact details; strip them so the AI guardrail never trips.
     const text = (await toText(`jds/${f}`, f))
       .replace(EMAIL_RE, "[EMAIL]")
+      .replace(LINK_RE, "[LINK]")
       .replace(/(?:\+\s?)?\(?\d[\d\s().-]{7,}\d/g, (m) => (m.replace(/\D/g, "").length >= 10 ? "[PHONE]" : m))
       .trim();
     must(await db().from("role_context").upsert({ role, jd_text: text, source_file: f, updated_at: new Date().toISOString() }, { onConflict: "role" }), "saving JD");

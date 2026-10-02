@@ -159,3 +159,44 @@ describe("formatEmailBody", () => {
     expect(formatEmailBody(good, "Arjun Mehta, Founder, Kargo")).toBe(good);
   });
 });
+
+describe("PDF-shaped contact blocks (glued, duplicated, headings first)", () => {
+  // Real PDFs repeat the contact line and glue the pieces together; the first line is often a heading.
+  const raw = [
+    "Strategy & Operations Leader | Corporate Strategy | Executive Advisory",
+    "",
+    "priya.nair.ops@example.com+91 98202 1134598202 11345priya-nairlinkedin.com/in/priya-nair-7a2b",
+    "arnav-senlinkedin.com/in/arnav-sen github.com/priyanair",
+    "",
+    "EXPERIENCE",
+    `Operations Executive, Freightly, 2021 – 2024. Led a team of 12 and cut exceptions by 28%. ${"Built trackers and fixed intake. ".repeat(8)}`,
+  ].join("\n");
+  const r = extractAndRedact(raw, "07_priya_nair.pdf");
+
+  it("takes the name from the file name when the first line is a heading and the email agrees", () => {
+    expect(r.pii.name).toBe("Priya Nair");
+    expect(r.pii.nameConfident).toBe(true);
+  });
+  it("finds the phone even when it is duplicated and glued", () => {
+    expect(r.pii.phone?.replace(/\D/g, "")).toMatch(/^(91)?9820211345$/);
+  });
+  it("leaves no phone digits, web-address slugs, links or name in the redacted text", () => {
+    expect(r.cvContent).not.toMatch(/98202|11345/);
+    expect(r.cvContent).not.toMatch(/priya|nair|arnav|linkedin|github/i);
+    expect(() => assertNoPii(r.cvContent, r.pii.name)).not.toThrow();
+  });
+  it("keeps real content and year ranges", () => {
+    expect(r.cvContent).toContain("2021 – 2024");
+    expect(r.cvContent).toContain("cut exceptions by 28%");
+  });
+  it("the guardrail now blocks glued phones, profile links and slug-style names", () => {
+    expect(() => assertNoPii("call +91 98202 1134598202 11345", null)).toThrow(/phone/);
+    expect(() => assertNoPii("see linkedin.com/in/someone", null)).toThrow(/link/);
+    expect(() => assertNoPii("11345priya-nair", "Priya Nair")).toThrow(/name/);
+  });
+  it("a candidate who shares a word with our own fixed text can be checked without false alarms", () => {
+    // The system prompt says "Arjun Mehta, Founder, Kargo"; callers check it without the candidate's name.
+    expect(() => assertNoPii("Sign off with: Arjun Mehta, Founder, Kargo", null)).not.toThrow();
+    expect(() => assertNoPii("The candidate led a team", "Rohan Mehta")).not.toThrow();
+  });
+});

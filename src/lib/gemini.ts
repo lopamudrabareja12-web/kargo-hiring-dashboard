@@ -61,7 +61,9 @@ export interface JsonCall<T> {
  */
 export async function generateJson<T>(call: JsonCall<T>): Promise<T> {
   // GUARDRAIL: nothing goes to Gemini if it contains an email, a phone number or the name.
-  assertNoPii(call.system, call.guardName, call.trusted);
+  // The system prompt is fixed text we wrote ("Arjun Mehta, Founder, Kargo"): check it for contact
+  // details, but not for a candidate's name, which can legitimately match a word in it.
+  assertNoPii(call.system, null);
   assertNoPii(call.prompt, call.guardName, call.trusted);
 
   const deadline = Date.now() + (call.budgetMs ?? 50_000);
