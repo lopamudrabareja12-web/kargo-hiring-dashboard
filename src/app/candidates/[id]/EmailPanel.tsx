@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, postJson } from "@/components/client-api";
+import { Icon } from "@/components/Icons";
 import type { EmailRow } from "@/lib/db";
 import type { EmailKind } from "@/lib/ranking";
 
@@ -57,7 +58,7 @@ export function EmailPanel({
     return (
       <div className="card">
         <h2>Email</h2>
-        <p className="mt-1 text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted">
           {ranked ? "No draft yet. Press Retry above (or \"Generate now\" on the dashboard)." : "The draft is written after scoring."}
         </p>
       </div>
@@ -66,28 +67,28 @@ export function EmailPanel({
 
   if (email.sent_at) {
     return (
-      <div className="card border-leaf-100 bg-leaf-50">
+      <div className="card-tint reveal">
         <h2>Email: Sent</h2>
-        <p className="mt-1 text-xs text-neutral-700">
+        <p className="mt-1 text-xs text-muted">
           Sent {new Date(email.sent_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} to <b>{email.sent_to}</b>
           {" · "}{email.type}{email.edited ? " · edited by you" : ""} · Resend id {email.resend_id}
         </p>
         <p className="mt-3 text-sm font-medium">{email.final_subject}</p>
         <pre className="mt-1 whitespace-pre-wrap font-sans text-sm">{email.final_body}</pre>
-        <p className="mt-2 text-xs text-neutral-500">Sent emails can&apos;t be sent again or edited.</p>
+        <p className="mt-2 text-xs text-muted">Sent emails can&apos;t be sent again or edited.</p>
       </div>
     );
   }
 
 
   return (
-    <div className="card space-y-3">
+    <section className="card reveal space-y-4" style={{ "--i": 7 } as React.CSSProperties} aria-label="Email draft">
       <div className="flex flex-wrap items-center gap-2">
         <h2>Email draft</h2>
-        <span className={`chip ${email.type === "invite" ? "bg-leaf-100 text-leaf-800" : "bg-neutral-100"}`}>{kindLabels[email.kind]}</span>
-        {email.edited && <span className="chip bg-plum-50 text-plum-700">edited by you</span>}
-        {email.override_kind && <span className="chip bg-plum-50 text-plum-700">your override</span>}
-        {recommendedKind && <span className="text-xs text-neutral-500">System recommends: {kindLabels[recommendedKind]}</span>}
+        <span className={`chip ${email.type === "invite" ? "bg-leaf-100 text-leaf-800" : "bg-sand"}`}>{kindLabels[email.kind]}</span>
+        {email.edited && <span className="chip bg-bark-50 text-bark-700">edited by you</span>}
+        {email.override_kind && <span className="chip bg-bark-50 text-bark-700">your override</span>}
+        {recommendedKind && <span className="text-xs text-muted">System recommends: {kindLabels[recommendedKind]}</span>}
       </div>
 
       {email.outdated && (
@@ -99,18 +100,18 @@ export function EmailPanel({
       {email.send_error && <p className="rounded-2xl bg-clay-50 px-3 py-2 text-sm text-clay-700">Last send failed: {email.send_error}</p>}
 
       {preview ? (
-        <div className="rounded-2xl border-2 border-leaf-500 p-3">
+        <div className="rounded-2xl bg-cream p-5 shadow-[0_0_0_2px_var(--color-leaf-500)]">
           <p className="text-sm font-semibold">Confirm this email. It goes out exactly as shown.</p>
           <dl className="mt-2 grid grid-cols-[5rem_1fr] gap-y-1 text-sm">
-            <dt className="text-neutral-500">From</dt><dd>{preview.from}</dd>
-            <dt className="text-neutral-500">To</dt>
+            <dt className="text-muted">From</dt><dd>{preview.from}</dd>
+            <dt className="text-muted">To</dt>
             <dd><b>{preview.to}</b>{preview.overridden && <span className="ml-2 text-xs text-sun-800">(test override; real recipient {preview.originalTo})</span>}</dd>
-            <dt className="text-neutral-500">Subject</dt><dd>{preview.subject}</dd>
+            <dt className="text-muted">Subject</dt><dd>{preview.subject}</dd>
           </dl>
-          <pre className="mt-2 whitespace-pre-wrap rounded bg-neutral-50 p-3 font-sans text-sm">{preview.body}</pre>
+          <pre className="mt-3 whitespace-pre-wrap rounded-2xl bg-paper p-5 font-sans text-sm leading-relaxed">{preview.body}</pre>
           <div className="mt-3 flex gap-2">
             <button
-              className="btn-primary"
+              className="btn-cta"
               disabled={!!busy}
               onClick={() =>
                 run("Sending…", async () => {
@@ -121,23 +122,24 @@ export function EmailPanel({
               }
             >
               {busy ?? `Send this ${preview.type} now`}
+              <span className="btn-dot"><Icon name="send" size={15} /></span>
             </button>
             <button className="btn" disabled={!!busy} onClick={() => setPreview(null)}>Back to editing</button>
           </div>
         </div>
       ) : (
         <>
-          <label className="block text-xs text-neutral-500">Subject
-            <input className="input mt-0.5 text-neutral-900" value={subject} onChange={(e) => setSubject(e.target.value)} />
+          <label className="block text-xs text-muted">Subject
+            <input className="input mt-0.5 text-ink" value={subject} onChange={(e) => setSubject(e.target.value)} />
           </label>
-          <label className="block text-xs text-neutral-500">
+          <label className="block text-xs text-muted">
             Body (<code>[NAME]</code> becomes their first name and <code>{"{{SCHEDULING_LINK}}"}</code> your booking link at send time)
-            <textarea className="input mt-0.5 h-64 font-sans text-neutral-900" value={body} onChange={(e) => setBody(e.target.value)} />
+            <textarea className="input mt-0.5 h-64 font-sans text-ink" value={body} onChange={(e) => setBody(e.target.value)} />
           </label>
-          <p className="text-xs text-neutral-500">{body.trim().split(/\s+/).filter(Boolean).length} words{!body.includes("[NAME]") && " · no [NAME] placeholder"}</p>
+          <p className="text-xs text-muted">{body.trim().split(/\s+/).filter(Boolean).length} words{!body.includes("[NAME]") && " · no [NAME] placeholder"}</p>
           <div className="flex flex-wrap gap-2">
             <button
-              className="btn-primary"
+              className="btn-cta"
               disabled={!!busy}
               onClick={() =>
                 run("Preparing preview…", async () => {
@@ -147,7 +149,8 @@ export function EmailPanel({
                 })
               }
             >
-              Confirm &amp; send…
+              Confirm &amp; send
+              <span className="btn-dot"><Icon name="arrowUpRight" size={16} /></span>
             </button>
             <button
               className="btn"
@@ -173,13 +176,13 @@ export function EmailPanel({
             <button className="btn" disabled={!!busy} onClick={() => setOverrideOpen((o) => !o)}>
               Change email type…
             </button>
-            {busy && <span className="self-center text-sm text-neutral-600">{busy}</span>}
+            {busy && <span className="self-center text-sm text-muted">{busy}</span>}
           </div>
 
           {overrideOpen && (
-            <div className="rounded-2xl border border-plum-100 bg-plum-50 p-3 text-sm">
+            <div className="rounded-2xl border border-bark-100 bg-bark-50 p-3 text-sm">
               <p className="font-medium">Override the recommendation</p>
-              <p className="text-xs text-neutral-600">Your reason goes into the decision log. The draft is rewritten to match.</p>
+              <p className="text-xs text-muted">Your reason goes into the decision log. The draft is rewritten to match.</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <select className="input max-w-xs bg-white" value={overrideKind} onChange={(e) => setOverrideKind(e.target.value as EmailKind)}>
                   {KINDS.map((k) => <option key={k} value={k}>{kindLabels[k]}{k === recommendedKind ? " (recommended)" : ""}</option>)}
@@ -217,7 +220,7 @@ export function EmailPanel({
         </>
       )}
       {err && <p className="rounded-2xl bg-clay-50 px-3 py-2 text-sm text-clay-700">{err}</p>}
-      <p className="text-xs text-neutral-500">One email per confirm. Nothing is ever sent automatically, in bulk or on a schedule.</p>
-    </div>
+      <p className="text-xs text-muted">One email per confirm. Nothing is ever sent automatically, in bulk or on a schedule.</p>
+    </section>
   );
 }

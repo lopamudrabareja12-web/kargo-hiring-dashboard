@@ -3,45 +3,52 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Brand";
+import { Icon, type IconName } from "./Icons";
 
-const LINKS = [
-  { href: "/", label: "Shortlist", match: (p: string) => p === "/" || p.startsWith("/candidates") },
-  { href: "/upload", label: "Upload CVs", match: (p: string) => p.startsWith("/upload") },
-  { href: "/rubric", label: "Rubric", match: (p: string) => p.startsWith("/rubric") },
+const LINKS: { href: string; label: string; icon: IconName; match: (p: string) => boolean }[] = [
+  { href: "/", label: "Shortlist", icon: "list", match: (p) => p === "/" || p.startsWith("/candidates") },
+  { href: "/upload", label: "Upload CVs", icon: "upload", match: (p) => p.startsWith("/upload") },
+  { href: "/rubric", label: "Rubric", icon: "book", match: (p) => p.startsWith("/rubric") },
 ];
 
 export function NavBar() {
   const path = usePathname();
   if (path === "/login") return null;
   return (
-    <header className="sticky top-0 z-20 border-b border-line/70 bg-cream/85 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-5 py-3">
-        <Link href="/" className="mr-4 flex items-center gap-2.5 no-underline">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex justify-center px-3 pt-4">
+      <nav aria-label="Main" className="glass-nav pointer-events-auto flex w-full max-w-5xl items-center gap-1 rounded-full py-1.5 pl-2.5 pr-1.5 sm:gap-2">
+        <Link href="/" className="mr-1 flex items-center gap-2.5 rounded-full pr-2 no-underline sm:mr-3" aria-label="Kargo Hiring, home">
           <Logo size={34} />
-          <span className="leading-tight">
+          <span className="hidden leading-tight sm:block">
             <span className="block whitespace-nowrap font-display text-[1.05rem] font-semibold text-ink">Kargo Hiring</span>
-            <span className="hidden text-[11px] text-muted lg:block">The system recommends. Arjun decides.</span>
+            <span className="hidden whitespace-nowrap text-[11px] text-muted lg:block">The system recommends. Arjun decides.</span>
           </span>
         </Link>
-        <div className="flex items-center gap-1 rounded-full border border-line/70 bg-white p-1 shadow-sm">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium no-underline transition ${
-                l.match(path) ? "bg-leaf-600 text-white shadow-sm" : "text-muted hover:bg-leaf-50 hover:text-ink"
-              }`}
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="flex flex-1 items-center justify-center gap-0.5 sm:justify-start">
+          {LINKS.map((l) => {
+            const active = l.match(path);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-10 items-center gap-2 whitespace-nowrap rounded-full px-3.5 text-sm font-medium no-underline transition duration-500 ease-spring active:scale-[0.97] ${
+                  active ? "bg-leaf-700 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.18)]" : "text-muted hover:bg-sand hover:text-ink"
+                }`}
+              >
+                <Icon name={l.icon} size={17} />
+                <span className={active ? "" : "sr-only sm:not-sr-only"}>{l.label}</span>
+              </Link>
+            );
+          })}
         </div>
-        <div className="ml-auto flex items-center gap-3">
-          <span className="hidden text-sm text-muted sm:inline">Hi, Arjun 👋</span>
-          <form action="/api/logout" method="post">
-            <button className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-muted transition hover:bg-sand hover:text-ink">Log out</button>
-          </form>
-        </div>
+        <span className="hidden text-sm text-muted md:inline">Hi, Arjun</span>
+        <form action="/api/logout" method="post">
+          <button className="flex min-h-10 items-center gap-2 whitespace-nowrap rounded-full px-3.5 text-sm text-muted transition duration-500 ease-spring hover:bg-sand hover:text-ink active:scale-[0.97]">
+            <Icon name="logout" size={17} />
+            <span className="sr-only sm:not-sr-only">Log out</span>
+          </button>
+        </form>
       </nav>
     </header>
   );

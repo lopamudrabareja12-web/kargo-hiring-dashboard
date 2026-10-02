@@ -11,7 +11,7 @@ export function NameForm({ id, current, required }: { id: string; current: strin
   const [err, setErr] = useState<string | null>(null);
   return (
     <form
-      className="card border-sun-100 bg-sun-50"
+      className="card-tint bg-sun-50"
       onSubmit={async (e) => {
         e.preventDefault();
         setErr(null);
@@ -31,17 +31,17 @@ export function NameForm({ id, current, required }: { id: string; current: strin
         }
       }}
     >
-      <p className="text-sm font-semibold">{required ? "Name needed before scoring" : "Check the name"}</p>
-      <p className="mt-0.5 text-xs text-neutral-700">
+      <p className="font-semibold text-sun-800">{required ? "Name needed before scoring" : "Check the name"}</p>
+      <p className="mt-1 text-xs leading-relaxed text-sun-800">
         {required
           ? "The name could not be found confidently. Type it so it can be removed from the CV text before any AI step. Nothing has been sent to AI."
           : "The name was guessed. If it is wrong, correct it (it will be removed from the stored CV text too)."}
       </p>
       <div className="mt-2 flex gap-2">
-        <input className="input max-w-sm bg-white" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required />
+        <input aria-label="Full name" className="input max-w-sm" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required />
         <button className="btn-primary" disabled={!!busy}>{busy ?? (required ? "Save and score" : "Save")}</button>
       </div>
-      {err && <p className="mt-1 text-xs text-clay-700">{err}</p>}
+      {err && <p role="alert" className="mt-2 text-xs text-clay-700">{err}</p>}
     </form>
   );
 }

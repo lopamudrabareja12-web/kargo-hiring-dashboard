@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
-/* Warm & friendly theme: cream paper, deep leaf green, soft terracotta accents. */
+/* Editorial warm theme: paper, ink, one leaf-green accent. Semantic colours only for status. */
 @theme {
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-face), Georgia, serif;
 
-  --color-cream: #fbf7f0;
-  --color-sand: #f3ece0;
-  --color-line: #e8dfd0;
-  --color-ink: #2b2620;
-  --color-muted: #7a6f62;
+  --color-cream: #faf6ee;
+  --color-paper: #fffdf8;
+  --color-sand: #f1eadd;
+  --color-line: #e6dccb;
+  --color-ink: #28231c;
+  --color-muted: #6a5f51;
 
   --color-leaf-50: #eef6f0;
   --color-leaf-100: #d8ebdd;
@@ -27,44 +28,122 @@
   --color-sun-50: #fdf7e3;
   --color-sun-100: #f8eabb;
   --color-sun-500: #d9a521;
-  --color-sun-800: #7a5a08;
+  --color-sun-800: #6f5206;
 
-  --color-plum-50: #f5effa;
-  --color-plum-100: #e8dcf3;
-  --color-plum-700: #5f3d86;
+  --color-bark-50: #f4efe6;
+  --color-bark-100: #e8e0d1;
+  --color-bark-700: #55493b;
 
-  --shadow-soft: 0 1px 2px rgb(60 45 25 / 0.04), 0 4px 16px rgb(60 45 25 / 0.06);
-  --shadow-lift: 0 2px 4px rgb(60 45 25 / 0.06), 0 10px 30px rgb(60 45 25 / 0.10);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-:root { color-scheme: light; }
-html, body { background: var(--color-cream); }
-body { @apply text-ink antialiased font-sans text-[15px] leading-relaxed; }
+html { background: var(--color-cream); scroll-behavior: smooth; }
+body {
+  @apply font-sans text-[15px] leading-relaxed text-ink antialiased;
+  font-variant-numeric: tabular-nums;
+  min-height: 100dvh;
+}
+/* Ambient light behind everything (fixed, so it never repaints on scroll). */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(58rem 34rem at 8% -8%, rgb(63 138 92 / 0.11), transparent 62%),
+    radial-gradient(46rem 30rem at 100% 2%, rgb(208 116 63 / 0.08), transparent 62%),
+    radial-gradient(40rem 30rem at 60% 110%, rgb(217 165 33 / 0.07), transparent 60%);
+}
+/* Film grain: fixed, pointer-events none, very low opacity. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0.035; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 ::selection { background: var(--color-leaf-100); }
 
-h1 { @apply font-display text-[1.9rem] leading-tight font-semibold tracking-tight text-ink; }
-h2 { @apply font-display text-lg font-semibold text-ink; }
-code { @apply rounded bg-sand px-1 py-0.5 text-[0.85em]; }
-kbd { @apply rounded-md border border-line bg-white px-1.5 py-0.5 text-[0.75rem] font-medium text-muted shadow-sm; }
-a { @apply decoration-leaf-200 underline-offset-2; }
+h1 { @apply font-display text-[2.35rem] leading-[1.05] font-semibold tracking-[-0.025em] text-ink; text-wrap: balance; font-variation-settings: "SOFT" 70; }
+h2 { @apply font-display text-xl leading-tight font-semibold tracking-[-0.015em] text-ink; text-wrap: balance; font-variation-settings: "SOFT" 70; }
+p { text-wrap: pretty; }
+code { @apply rounded-md bg-sand px-1.5 py-0.5 text-[0.85em]; }
+kbd { @apply rounded-md bg-paper px-1.5 py-0.5 text-[0.72rem] font-medium text-muted shadow-[0_1px_0_rgb(120_95_55/0.25),inset_0_0_0_1px_rgb(120_95_55/0.12)]; }
+a { text-underline-offset: 3px; }
 
-/* Buttons */
-.btn { @apply inline-flex items-center justify-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-leaf-200 hover:bg-leaf-50 disabled:cursor-not-allowed disabled:opacity-50; }
-.btn-primary { @apply inline-flex items-center justify-center gap-1.5 rounded-full bg-leaf-600 px-5 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-leaf-700 disabled:cursor-not-allowed disabled:opacity-50; }
-.btn-danger { @apply inline-flex items-center justify-center gap-1.5 rounded-full border border-clay-100 bg-white px-4 py-2 text-sm font-medium text-clay-700 transition hover:bg-clay-50 disabled:opacity-50; }
+/* Keyboard focus: always visible (WCAG 2.4.7 / 2.4.11). */
+:focus-visible { outline: 2px solid var(--color-leaf-600); outline-offset: 3px; border-radius: 0.5rem; }
+.skip-link { @apply sr-only; }
+.skip-link:focus { @apply not-sr-only fixed left-4 top-4 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white; z-index: 50; }
 
-/* Surfaces */
-.card { @apply rounded-3xl border border-line/70 bg-white p-6 shadow-soft; }
-.card-tint { @apply rounded-3xl border border-leaf-100 bg-leaf-50 p-6; }
-.input { @apply w-full rounded-2xl border border-line bg-white px-4 py-2.5 text-sm text-ink shadow-sm transition placeholder:text-muted/70 focus:border-leaf-500 focus:outline-none focus:ring-4 focus:ring-leaf-100; }
+/* Double-bezel surface: an inner core with a lit top edge, inside a faint tray. */
+.card {
+  @apply rounded-[1.6rem] bg-paper p-6 transition-[transform,box-shadow] duration-500 ease-spring;
+  box-shadow:
+    0 0 0 6px rgb(120 95 55 / 0.05), 0 0 0 7px rgb(120 95 55 / 0.075),
+    inset 0 1px 0 rgb(255 255 255 / 0.95), 0 22px 44px -22px rgb(90 65 25 / 0.28);
+}
+.card-tint {
+  @apply rounded-[1.6rem] bg-leaf-50 p-6;
+  box-shadow: 0 0 0 6px rgb(63 138 92 / 0.06), 0 0 0 7px rgb(63 138 92 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 6px rgb(120 95 55 / 0.06), 0 0 0 7px rgb(120 95 55 / 0.09),
+    inset 0 1px 0 rgb(255 255 255 / 0.95), 0 30px 50px -22px rgb(90 65 25 / 0.35);
+}
+.card-flush { padding: 0; overflow: hidden; }
+
+/* Buttons: press feedback + spring easing. */
+.btn {
+  @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-paper px-4 py-2 text-sm font-medium text-ink transition duration-300 ease-spring hover:bg-leaf-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  box-shadow: 0 0 0 1px rgb(120 95 55 / 0.14), 0 1px 2px rgb(90 65 25 / 0.08);
+}
+.btn-primary {
+  @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-leaf-700 px-5 py-2 text-sm font-semibold text-white transition duration-300 ease-spring hover:bg-leaf-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 10px 22px -10px rgb(37 90 59 / 0.7);
+}
+/* Primary CTA with the arrow nested in its own circle ("button in button"). */
+.btn-cta {
+  @apply inline-flex min-h-11 items-center justify-between gap-4 rounded-full bg-leaf-700 py-1.5 pl-6 pr-1.5 text-sm font-semibold text-white transition duration-300 ease-spring hover:bg-leaf-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 12px 26px -12px rgb(37 90 59 / 0.75);
+}
+.btn-dot { @apply flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition duration-500 ease-spring; }
+.btn-cta:hover:not(:disabled) .btn-dot { transform: translate(2px, -1px) scale(1.08); background: rgb(255 255 255 / 0.22); }
+.btn-danger {
+  @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-paper px-4 py-2 text-sm font-medium text-clay-700 transition duration-300 ease-spring hover:bg-clay-50 active:scale-[0.98] disabled:opacity-50;
+  box-shadow: 0 0 0 1px rgb(156 74 31 / 0.25);
+}
+
+.input {
+  @apply w-full rounded-2xl bg-paper px-4 py-2.5 text-[15px] text-ink transition duration-300 ease-spring placeholder:text-muted/70 focus:outline-none;
+  box-shadow: inset 0 1px 2px rgb(90 65 25 / 0.08), 0 0 0 1px rgb(120 95 55 / 0.18);
+}
+.input:focus { box-shadow: inset 0 1px 2px rgb(90 65 25 / 0.06), 0 0 0 2px var(--color-leaf-500), 0 0 0 6px var(--color-leaf-100); }
+
 .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap; }
-.eyebrow { @apply text-xs font-semibold uppercase tracking-[0.12em] text-muted; }
-.avatar { @apply inline-flex shrink-0 items-center justify-center rounded-full font-semibold; }
+.eyebrow { @apply text-xs font-semibold text-muted; }
+.eyebrow-pill { @apply inline-flex items-center gap-1.5 rounded-full bg-leaf-100/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-leaf-800; }
 
-/* Override the old neutral palette used in a few places so everything matches the warm theme. */
-.text-neutral-500, .text-neutral-600 { color: var(--color-muted) !important; }
-.text-neutral-400, .text-neutral-300 { color: #b7ab9b !important; }
-.text-neutral-700, .text-neutral-800, .text-neutral-900 { color: var(--color-ink) !important; }
-.bg-neutral-50 { background: var(--color-cream) !important; }
-.bg-neutral-100 { background: var(--color-sand) !important; }
-.border-neutral-100, .border-neutral-200, .border-neutral-300 { border-color: var(--color-line) !important; }
+/* Entrance: heavy fade-up. `backwards` so hover transforms still work afterwards. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.reveal { animation: rise 0.9s var(--ease-spring) backwards; animation-delay: calc(var(--i, 0) * 70ms); }
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+.skeleton {
+  border-radius: 1.2rem;
+  background: linear-gradient(90deg, var(--color-sand) 0%, #f8f2e7 50%, var(--color-sand) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Floating glass nav (fixed, so blur is safe). */
+.glass-nav {
+  background: rgb(255 253 248 / 0.78);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 0 0 1px rgb(120 95 55 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.85), 0 18px 40px -16px rgb(90 65 25 / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/Brand";
+import { Icon } from "@/components/Icons";
 import { MIN_SCORE, SHORTLIST_SIZE } from "@/lib/constants";
 import type { DashboardRow } from "@/lib/queries";
 
@@ -12,9 +13,9 @@ const FILTERS: [Filter, string][] = [
   ["all", "Everyone"], ["above", "Above the line"], ["below", "Below the line"], ["unsent", "Not sent yet"], ["sent", "Sent"],
 ];
 
-export function MiniBar({ criteria }: { criteria: DashboardRow["criteria"] }) {
+export function MiniBar({ criteria, wide = false }: { criteria: DashboardRow["criteria"]; wide?: boolean }) {
   return (
-    <div className="flex h-2.5 w-36 gap-0.5" aria-label="Per-criterion scores">
+    <div className={`flex gap-1 ${wide ? "h-3 w-full" : "h-2.5 w-36"}`} role="img" aria-label={criteria.map((c) => `${c.name}: ${c.score} of ${c.max}`).join(", ")}>
       {criteria.map((c) => (
         <div
           key={c.name}
@@ -28,22 +29,22 @@ export function MiniBar({ criteria }: { criteria: DashboardRow["criteria"] }) {
 }
 
 export function BandChip({ band }: { band: DashboardRow["band"] }) {
-  if (band === "above") return <span className="chip bg-leaf-100 text-leaf-800">✓ Above the line</span>;
-  if (band === "top5_below_bar") return <span className="chip bg-sun-100 text-sun-800">Top {SHORTLIST_SIZE}, below bar</span>;
+  if (band === "above") return <span className="chip bg-leaf-100 text-leaf-800"><Icon name="check" size={13} />Above the line</span>;
+  if (band === "top5_below_bar") return <span className="chip bg-sun-100 text-sun-800">Top {SHORTLIST_SIZE}, below the bar</span>;
   return <span className="chip bg-sand text-muted">Below the line</span>;
 }
 
 export function EmailChip({ r }: { r: Pick<DashboardRow, "emailStatus" | "emailType"> }) {
   const tone =
-    r.emailStatus === "Sent" ? "bg-leaf-600 text-white"
+    r.emailStatus === "Sent" ? "bg-leaf-700 text-white"
     : r.emailStatus === "Outdated" || r.emailStatus === "Send failed" ? "bg-clay-100 text-clay-700"
-    : r.emailStatus === "Edited" ? "bg-plum-50 text-plum-700"
+    : r.emailStatus === "Edited" ? "bg-bark-100 text-bark-700"
     : "bg-sand text-muted";
-  const icon = r.emailStatus === "Sent" ? "✉️ " : r.emailStatus === "None" ? "" : "";
   const label = r.emailStatus === "Outdated" ? "Draft outdated" : r.emailStatus === "None" ? "No draft yet" : r.emailStatus;
   return (
     <span className={`chip ${tone}`}>
-      {icon}{label}{r.emailType && r.emailStatus !== "None" ? ` · ${r.emailType}` : ""}
+      {r.emailStatus === "Sent" && <Icon name="mailCheck" size={13} />}
+      {label}{r.emailType && r.emailStatus !== "None" ? ` · ${r.emailType}` : ""}
     </span>
   );
 }
@@ -100,13 +101,14 @@ export function DashboardTable({ rows, role }: { rows: DashboardRow[]; role: "PM
   );
 
   return (
-    <div className="card overflow-hidden p-0">
+    <div className="card card-flush">
       <div className="flex flex-wrap items-center gap-1.5 border-b border-line/70 px-4 py-3">
         {FILTERS.map(([f, label]) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${filter === f ? "bg-ink text-white" : "text-muted hover:bg-sand hover:text-ink"}`}
+            aria-pressed={filter === f}
+            className={`min-h-9 rounded-full px-3.5 text-xs font-semibold transition duration-500 ease-spring active:scale-[0.97] ${filter === f ? "bg-ink text-white" : "text-muted hover:bg-sand hover:text-ink"}`}
           >
             {label}
           </button>
@@ -134,7 +136,7 @@ export function DashboardTable({ rows, role }: { rows: DashboardRow[]; role: "PM
                   id={`row-${i}`}
                   onClick={() => router.push(`/candidates/${r.id}`)}
                   onMouseEnter={() => setSel(i)}
-                  className={`cursor-pointer border-t border-line/50 align-middle transition ${i === sel ? "bg-leaf-50" : "hover:bg-cream"}`}
+                  className={`cursor-pointer border-t border-line/60 align-middle transition-colors duration-300 ${i === sel ? "bg-leaf-50" : "hover:bg-cream"}`}
                 >
                   <td className="px-4 py-3 font-display text-base font-semibold text-muted">{r.rank}{r.tiedCount > 0 ? "=" : ""}</td>
                   <td className="px-2 py-3">
@@ -144,9 +146,9 @@ export function DashboardTable({ rows, role }: { rows: DashboardRow[]; role: "PM
                         <Link href={`/candidates/${r.id}`} className="font-semibold text-ink no-underline hover:text-leaf-700" onClick={(e) => e.stopPropagation()}>
                           {r.name}
                         </Link>
-                        {!r.reviewed && <span className="chip ml-1.5 bg-plum-50 text-plum-700">new</span>}
+                        {!r.reviewed && <span className="chip ml-1.5 bg-bark-100 text-bark-700">new</span>}
                         <p className="max-w-xs truncate text-xs text-muted">{r.headline ?? "–"}</p>
-                        {r.tiebreakNote && <p className="max-w-sm text-[11px] text-muted">⚖️ {r.tiebreakNote}</p>}
+                        {r.tiebreakNote && <p className="mt-1 flex max-w-sm items-start gap-1.5 text-[11px] leading-snug text-muted"><Icon name="scale" size={13} className="mt-px" /><span>{r.tiebreakNote}</span></p>}
                       </div>
                     </div>
                   </td>
@@ -157,7 +159,7 @@ export function DashboardTable({ rows, role }: { rows: DashboardRow[]; role: "PM
                   <td className="px-2"><MiniBar criteria={r.criteria} /></td>
                   <td className="px-2"><BandChip band={r.band} /></td>
                   <td className="px-2">
-                    {r.crossRoleFit ? <span className="chip bg-plum-50 text-plum-700">✦ {other} top {SHORTLIST_SIZE}</span> : <span className="text-line">–</span>}
+                    {r.crossRoleFit ? <span className="chip bg-bark-100 text-bark-700"><Icon name="sparkle" size={13} />{other} top {SHORTLIST_SIZE}</span> : <span className="text-line">–</span>}
                   </td>
                   <td className="px-4"><EmailChip r={r} /></td>
                 </tr>
