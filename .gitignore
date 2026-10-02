@@ -17,3 +17,6 @@ coverage/
 .vercel
 .env*
 !.env.example
+
+# Course materials: kept locally, not published
+context/*.pdf
