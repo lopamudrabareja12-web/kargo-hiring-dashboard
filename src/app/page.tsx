@@ -100,6 +100,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </div>
       )}
 
+      {data.bookingLinkProblem && (
+        <div role="alert" className="card-tint reveal flex flex-wrap items-center gap-4 bg-clay-50 py-4" style={{ ...delay(5), boxShadow: "0 0 0 6px rgb(208 116 63 / 0.06), 0 0 0 7px rgb(208 116 63 / 0.18)" }}>
+          <Icon name="link" size={20} className="text-clay-700" />
+          <p className="min-w-0 flex-1 text-sm text-clay-700">
+            <b>Invites can&apos;t be sent yet.</b> {data.bookingLinkProblem} Put Arjun&apos;s real booking link in <code>SCHEDULING_LINK</code> (Vercel → Settings → Environment Variables) and redeploy.
+          </p>
+        </div>
+      )}
+
       {attention.length > 0 && (
         <section aria-labelledby="attention" className="reveal" style={delay(5)}>
           <h2 id="attention" className="mb-4 flex items-center gap-2">Needs your attention <span className="chip bg-clay-100 text-clay-700">{attention.length}</span></h2>

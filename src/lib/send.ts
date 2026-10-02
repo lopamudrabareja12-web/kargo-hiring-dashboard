@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { Resend } from "resend";
 import { db, logEvent, must, type EmailRow, type PiiRow } from "./db";
 import { env } from "./env";
+import { schedulingLinkProblem } from "./link";
 import { PipelineError } from "./pipeline";
 import { fillTemplate, unfilledPlaceholders } from "./pii";
 
@@ -34,7 +35,12 @@ export async function buildPreview(id: string): Promise<EmailPreview> {
   if (!pii.email) throw new PipelineError("No email address was found in this CV, so it can't be sent from here.");
 
   const link = env.schedulingLink();
-  if (email.type === "invite" && !link) throw new PipelineError("SCHEDULING_LINK is not set. Add it in Vercel (or .env.local) before sending invites.");
+  if (email.type === "invite") {
+    const problem = schedulingLinkProblem(link);
+    if (problem) {
+      throw new PipelineError(`${problem} An invite can't go out with a broken booking link. Put Arjun's real booking link in SCHEDULING_LINK (Vercel → Settings → Environment Variables), redeploy, and try again.`);
+    }
+  }
 
   const subject = fillTemplate(email.subject, { name: pii.name, schedulingLink: link });
   let body = fillTemplate(email.body_template, { name: pii.name, schedulingLink: link });

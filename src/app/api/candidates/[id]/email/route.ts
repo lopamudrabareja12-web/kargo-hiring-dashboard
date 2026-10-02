@@ -1,4 +1,4 @@
-import { handle } from "@/lib/api";
+import { handle, readJson, uuid } from "@/lib/api";
 import { saveEmailEdit } from "@/lib/pipeline";
 
 export const runtime = "nodejs";
@@ -7,8 +7,8 @@ export const runtime = "nodejs";
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return handle(async () => {
-    const { subject, body } = (await req.json()) as { subject?: string; body?: string };
-    await saveEmailEdit(id, String(subject ?? ""), String(body ?? ""));
+    const { subject, body } = await readJson<{ subject: string; body: string }>(req);
+    await saveEmailEdit(uuid(id), String(subject ?? ""), String(body ?? ""));
     return { saved: true };
   });
 }

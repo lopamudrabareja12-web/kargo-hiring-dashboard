@@ -77,3 +77,38 @@ export function DeleteButton({ id }: { id: string }) {
     </span>
   );
 }
+
+export function ChangeRoleButton({ id, current }: { id: string; current: "PM" | "SPM" }) {
+  const router = useRouter();
+  const other = current === "PM" ? "SPM" : "PM";
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  if (!confirming) return <button className="btn" onClick={() => setConfirming(true)}>Move to {other}</button>;
+  return (
+    <span role="alertdialog" aria-label={`Move to ${other}?`} className="inline-flex flex-wrap items-center gap-2 rounded-2xl bg-sun-50 px-3 py-2 text-xs text-sun-800">
+      File them as a {other} applicant instead? Ranks, the line and drafts update.
+      <button
+        className="btn-primary"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          setErr(null);
+          try {
+            await postJson(`/api/candidates/${id}/role`, { role: other });
+            await syncDrafts(() => {});
+            router.push(`/?role=${other}`);
+            router.refresh();
+          } catch (e) {
+            setErr((e as Error).message);
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? "Moving…" : `Yes, move to ${other}`}
+      </button>
+      <button className="btn" disabled={busy} onClick={() => setConfirming(false)}>Cancel</button>
+      {err && <span role="alert" className="text-clay-700">{err}</span>}
+    </span>
+  );
+}

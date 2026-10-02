@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { Icon } from "@/components/Icons";
+import { MAX_UPLOAD_BYTES } from "@/lib/constants";
 import { STAGE_LABEL, api, runSteps, syncDrafts, type Stage } from "@/components/client-api";
 
 type Role = "PM" | "SPM";
@@ -15,6 +16,8 @@ interface Item {
   status: Status;
   id?: string;
   error?: string;
+  /** For a duplicate: the role it was already filed under. */
+  existingRole?: Role;
 }
 
 const CONCURRENCY = 2;
@@ -49,10 +52,10 @@ export function UploadClient() {
         const fd = new FormData();
         fd.append("file", it.file);
         fd.append("role", it.role);
-        const r = await api<{ kind: "created" | "duplicate"; id: string; stage?: Stage; needsName?: boolean }>("/api/process", { method: "POST", body: fd });
+        const r = await api<{ kind: "created" | "duplicate"; id: string; role?: Role; stage?: Stage; needsName?: boolean }>("/api/process", { method: "POST", body: fd });
         id = r.id;
         update(it.key, { id });
-        if (r.kind === "duplicate") return update(it.key, { status: "duplicate" });
+        if (r.kind === "duplicate") return update(it.key, { status: "duplicate", existingRole: r.role });
         if (r.needsName) return update(it.key, { status: "needs name" });
       } else {
         update(it.key, { error: undefined });
@@ -78,10 +81,11 @@ export function UploadClient() {
 
   const add = (files: FileList | File[]) => {
     if (!role) return;
-    const accepted = [...files].filter((f) => /\.(pdf|docx)$/i.test(f.name));
-    const rejected = [...files].filter((f) => !/\.(pdf|docx)$/i.test(f.name));
+    const isDoc = (f: File) => /\.(pdf|docx)$/i.test(f.name);
+    const accepted = [...files].filter((f) => isDoc(f) && f.size <= MAX_UPLOAD_BYTES);
+    const rejected = [...files].filter((f) => !isDoc(f) || f.size > MAX_UPLOAD_BYTES);
     const newItems: Item[] = accepted.map((file) => ({ key: `${file.name}-${file.size}-${Math.random()}`, file, role, status: "queued" }));
-    const bad: Item[] = rejected.map((file) => ({ key: `${file.name}-${Math.random()}`, file, role, status: "error", error: "Only PDF and DOCX files are supported." }));
+    const bad: Item[] = rejected.map((file) => ({ key: `${file.name}-${Math.random()}`, file, role, status: "error", error: isDoc(file) ? `This file is ${(file.size / 1048576).toFixed(1)} MB. Files over ${MAX_UPLOAD_BYTES / 1048576} MB can't be uploaded here: save a smaller PDF and try again.` : "Only PDF and DOCX files are supported." }));
     setItems((prev) => [...prev, ...newItems, ...bad]);
     queue.current.push(...newItems);
     pump();
@@ -191,13 +195,16 @@ export function UploadClient() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{it.file.name}</p>
                   {it.error && <p className="text-xs text-clay-700">{it.error}</p>}
+                  {it.status === "duplicate" && it.existingRole && it.existingRole !== it.role && (
+                    <p className="text-xs text-muted">Skipped: this CV is already filed as {it.existingRole}. To change it, open the candidate and press &ldquo;Move to {it.role}&rdquo;.</p>
+                  )}
                 </div>
                 <span className="chip bg-sand text-muted">{it.role}</span>
                 <span className={`chip ${STATUS_STYLE[it.status]}`}>
                   {busy(it.status) && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />}
-                  {it.status === "duplicate" ? "already uploaded" : it.status}
+                  {it.status === "duplicate" ? `already uploaded${it.existingRole ? ` as ${it.existingRole}` : ""}` : it.status}
                 </span>
-                {it.status === "error" && /\.(pdf|docx)$/i.test(it.file.name) && <button className="btn" onClick={() => retry(it)}>Retry</button>}
+                {it.status === "error" && /\.(pdf|docx)$/i.test(it.file.name) && it.file.size <= MAX_UPLOAD_BYTES && <button className="btn" onClick={() => retry(it)}>Retry</button>}
                 {it.status === "needs name" && it.id && <Link className="btn no-underline" href={`/candidates/${it.id}`}>Enter name</Link>}
                 {(it.status === "done" || it.status === "duplicate") && it.id && <Link className="text-xs font-semibold text-leaf-700" href={`/candidates/${it.id}`}>Open</Link>}
               </li>

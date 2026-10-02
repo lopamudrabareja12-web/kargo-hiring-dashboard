@@ -10,7 +10,7 @@ import { MIN_SCORE, ROLE_LABEL, otherRole, type Role } from "@/lib/constants";
 import { markReviewed } from "@/lib/pipeline";
 import { getCandidate, type CandidateDetail } from "@/lib/queries";
 import { EMAIL_KIND_LABEL } from "@/lib/ranking";
-import { DeleteButton, NameForm } from "./CandidateActions";
+import { ChangeRoleButton, DeleteButton, NameForm } from "./CandidateActions";
 import { EmailPanel } from "./EmailPanel";
 
 export const metadata: Metadata = { title: "Candidate" };
@@ -164,16 +164,17 @@ export default async function CandidatePage({ params }: { params: Promise<{ id: 
         <div className="min-w-0 flex-1">
           <h1>{pii?.name ?? "Name needed"}</h1>
           <p className="mt-1.5 text-muted">{c.headline ?? "No headline yet"}</p>
-          <ul className="mt-4 flex flex-wrap gap-2 text-xs">
+          <ul className="mt-4 flex min-w-0 flex-wrap gap-2 text-xs">
             <li className="chip bg-leaf-50 text-leaf-800">Applied: {ROLE_LABEL[applied]}</li>
-            <li className="chip bg-sand text-muted"><Icon name="mail" size={13} />{pii?.email ?? "no email found"}</li>
-            <li className="chip bg-sand text-muted"><Icon name="phone" size={13} />{pii?.phone ?? "no phone found"}</li>
-            {pii?.links?.map((l) => <li key={l} className="chip bg-sand text-muted"><Icon name="link" size={13} />{l}</li>)}
+            <li className="chip chip-wrap bg-sand text-muted"><Icon name="mail" size={13} />{pii?.email ?? "no email found"}</li>
+            <li className="chip chip-wrap bg-sand text-muted"><Icon name="phone" size={13} />{pii?.phone ?? "no phone found"}</li>
+            {pii?.links?.map((l) => <li key={l} className="chip chip-wrap bg-sand text-muted"><Icon name="link" size={13} />{l}</li>)}
           </ul>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {c.stage !== "needs_name" && (c.status === "error" || c.stage !== "drafted") && <RetryButton id={c.id} />}
           {c.stage !== "needs_name" && c.status !== "processing" && <RetryButton id={c.id} rescore label="Re-score" />}
+          <ChangeRoleButton id={c.id} current={applied} />
           <DeleteButton id={c.id} />
         </div>
       </header>

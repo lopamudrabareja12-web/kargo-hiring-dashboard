@@ -18,9 +18,10 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <input type="hidden" name="next" value={next ?? "/"} />
           <div>
             <label htmlFor="password" className="mb-2 block text-sm font-semibold">Password</label>
-            <input id="password" name="password" type="password" autoFocus required placeholder="Your dashboard password" className="input" autoComplete="current-password" aria-describedby={error ? "login-error" : undefined} aria-invalid={error === "1" ? true : undefined} />
+            <input id="password" name="password" type="password" autoFocus required placeholder="Your dashboard password" className="input" autoComplete="current-password" aria-describedby={error ? "login-error" : undefined} aria-invalid={error === "1" || error === "locked" ? true : undefined} />
           </div>
           {error === "1" && <p id="login-error" role="alert" className="rounded-2xl bg-clay-50 px-4 py-3 text-sm text-clay-700">That password didn&apos;t match. Check it and try again.</p>}
+          {error === "locked" && <p id="login-error" role="alert" className="rounded-2xl bg-clay-50 px-4 py-3 text-sm text-clay-700">Too many wrong passwords from this connection. Wait 15 minutes and try again.</p>}
           {error === "config" && <p id="login-error" role="alert" className="rounded-2xl bg-clay-50 px-4 py-3 text-sm text-clay-700">DASHBOARD_PASSWORD isn&apos;t set on the server. Add it in Vercel and redeploy.</p>}
           <button className="btn-cta w-full">
             Log in

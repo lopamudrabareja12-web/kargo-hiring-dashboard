@@ -25,3 +25,6 @@ export const MIN_TEXT_CHARS = 200;
 
 export const INVITE_MAX_WORDS = 150;
 export const REJECTION_MAX_WORDS = 120;
+
+/** Vercel rejects request bodies over 4.5 MB, so uploads are limited a little below that. */
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;

@@ -285,3 +285,50 @@ describe("Arjun's decisions", () => {
     }
   });
 });
+
+describe("hardening", () => {
+  it("a malformed or unknown candidate id is a plain 'not found', never a database message", async () => {
+    await expect(P.deleteCandidate("not-a-uuid")).rejects.toThrow(/not found/i);
+    await expect(P.runStep("../../etc/passwd")).rejects.toThrow(/not found/i);
+    await expect(P.deleteCandidate("00000000-0000-0000-0000-000000000000")).rejects.toBeInstanceOf(P.NotFoundError);
+  });
+
+  it("changing the email type or regenerating asks before replacing Arjun's edits", async () => {
+    const id = idOf("Rohan"); // edited earlier in this file
+    expect(email(id).edited).toBe(true);
+    await expect(P.setOverride(id, "rejection", "Not a fit for the team")).rejects.toBeInstanceOf(P.NeedsConfirmation);
+    await expect(P.draftFor(id, { forceEmail: true })).rejects.toBeInstanceOf(P.NeedsConfirmation);
+    expect(email(id).override_kind ?? null).toBeNull(); // nothing was changed by the refused attempts
+    expect(String(email(id).body_template)).toContain("PS: edited.");
+    await P.setOverride(id, "rejection", "Not a fit for the team", true);
+    expect(email(id)).toMatchObject({ kind: "rejection", edited: false });
+    expect(fake.t("events").some((e) => e.candidate_id === id && e.action === "draft_replaced")).toBe(true);
+  });
+
+  it("re-files a candidate under the other role and recomputes the ranking", async () => {
+    const id = idOf("Rahul"); // applied as SPM
+    expect(rt(id, "SPM").is_applied).toBe(true);
+    const r = await P.changeRole(id, "PM");
+    expect(r).toEqual({ role: "PM", changed: true });
+    expect(rt(id, "PM").is_applied).toBe(true);
+    expect(rt(id, "SPM").is_applied).toBe(false);
+    expect(fake.t("candidates").find((c) => c.id === id)!.applied_role).toBe("PM");
+    expect(fake.t("events").some((e) => e.candidate_id === id && e.action === "role_changed")).toBe(true);
+    expect(await P.changeRole(id, "PM")).toEqual({ role: "PM", changed: false });
+    await expect(P.changeRole(id, "CEO" as never)).rejects.toThrow(/PM or SPM/);
+  });
+
+  it("won't re-file someone who was already emailed", async () => {
+    await expect(P.changeRole(idOf("Lavanya"), "SPM")).rejects.toThrow(/already emailed/);
+  });
+
+  it("refuses to send an invite while the booking link is a placeholder", async () => {
+    const id = idOf("Sunita"); // an unsent invite
+    process.env.SCHEDULING_LINK = "https://cal.com/your-link";
+    await expect(S.buildPreview(id)).rejects.toThrow(/placeholder/);
+    process.env.SCHEDULING_LINK = "";
+    await expect(S.buildPreview(id)).rejects.toThrow(/not set/);
+    process.env.SCHEDULING_LINK = "https://cal.example/arjun";
+    await expect(S.buildPreview(id)).resolves.toMatchObject({ type: "invite" });
+  });
+});

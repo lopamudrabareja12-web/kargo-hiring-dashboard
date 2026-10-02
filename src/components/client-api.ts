@@ -30,7 +30,8 @@ export const STAGE_LABEL: Record<Stage, string> = {
 };
 
 /** Run the remaining pipeline steps for one candidate, one request per step. */
-export async function runSteps(id: string, onStage: (s: Stage) => void): Promise<void> {
+export async function runSteps(id: string, onStage: (s: Stage) => void, startStage: Stage = "extracted"): Promise<void> {
+  onStage(startStage); // label the step that is about to run, not the one that just finished
   for (let i = 0; i < 6; i++) {
     const r = await postJson<{ stage: Stage }>(`/api/candidates/${id}/step`);
     onStage(r.stage);

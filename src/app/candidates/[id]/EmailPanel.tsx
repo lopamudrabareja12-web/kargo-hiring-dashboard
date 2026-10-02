@@ -39,6 +39,8 @@ export function EmailPanel({
   const [overrideOpen, setOverrideOpen] = useState(false);
   const [overrideKind, setOverrideKind] = useState<EmailKind>(email?.override_kind ?? recommendedKind ?? "rejection");
   const [reason, setReason] = useState("");
+  // Anything that rewrites the draft asks first when Arjun has edited it.
+  const [replaceAsk, setReplaceAsk] = useState<null | "regenerate" | "override" | "clear">(null);
 
   const dirty = !!email && (subject !== email.subject || body !== email.body_template);
 
@@ -52,6 +54,29 @@ export function EmailPanel({
     } finally {
       setBusy(null);
     }
+  };
+
+  const edited = !!email?.edited;
+  const doRegenerate = (replace: boolean) =>
+    run("Regenerating…", async () => {
+      await postJson(`/api/candidates/${id}/email/regenerate`, { replaceEdits: replace });
+      window.location.reload();
+    });
+  const doOverride = (kind: EmailKind | null, why: string, replace: boolean) =>
+    run("Rewriting draft…", async () => {
+      await postJson(`/api/candidates/${id}/email/override`, { kind, reason: why, replaceEdits: replace });
+      window.location.reload();
+    });
+  const askOr = (what: "regenerate" | "override" | "clear", go: (replace: boolean) => void) => {
+    if (edited && replaceAsk !== what) return setReplaceAsk(what);
+    setReplaceAsk(null);
+    go(edited);
+  };
+  const confirmReplace = () => {
+    if (replaceAsk === "regenerate") doRegenerate(true);
+    else if (replaceAsk === "override") doOverride(overrideKind, reason, true);
+    else if (replaceAsk === "clear") doOverride(null, "back to recommendation", true);
+    setReplaceAsk(null);
   };
 
   if (!email) {
@@ -162,13 +187,7 @@ export function EmailPanel({
             <button
               className="btn"
               disabled={!!busy}
-              onClick={() =>
-                run("Regenerating…", async () => {
-                  await postJson(`/api/candidates/${id}/email/regenerate`);
-                  router.refresh();
-                  window.location.reload();
-                })
-              }
+              onClick={() => askOr("regenerate", doRegenerate)}
               title={email.edited ? "Replaces your edits with a new AI draft" : "Write a new AI draft"}
             >
               {email.edited || email.outdated ? "Regenerate (replaces your edits)" : "Regenerate"}
@@ -178,6 +197,17 @@ export function EmailPanel({
             </button>
             {busy && <span className="self-center text-sm text-muted">{busy}</span>}
           </div>
+
+          {replaceAsk && (
+            <div role="alertdialog" aria-label="Replace your edits?" className="rounded-2xl bg-sun-50 p-4 text-sm text-sun-800">
+              <p className="font-semibold">This replaces the edits you made to the draft.</p>
+              <p className="mt-1 text-xs">The AI writes a fresh draft and your wording is lost. This can&apos;t be undone.</p>
+              <div className="mt-3 flex gap-2">
+                <button className="btn-primary" disabled={!!busy} onClick={confirmReplace}>Yes, replace my edits</button>
+                <button className="btn" onClick={() => setReplaceAsk(null)}>Keep my edits</button>
+              </div>
+            </div>
+          )}
 
           {overrideOpen && (
             <div className="rounded-2xl border border-bark-100 bg-bark-50 p-3 text-sm">
@@ -191,26 +221,16 @@ export function EmailPanel({
                 <button
                   className="btn-primary"
                   disabled={!!busy}
-                  onClick={() =>
-                    run("Rewriting draft…", async () => {
-                      await postJson(`/api/candidates/${id}/email/override`, { kind: overrideKind, reason });
-                      window.location.reload();
-                    })
-                  }
+                  onClick={() => {
+                    if (reason.trim().length < 5) return setErr("Write a short reason for the override (it goes in the decision log).");
+                    setErr(null);
+                    askOr("override", (replace) => doOverride(overrideKind, reason, replace));
+                  }}
                 >
                   Apply
                 </button>
                 {email.override_kind && (
-                  <button
-                    className="btn"
-                    disabled={!!busy}
-                    onClick={() =>
-                      run("Rewriting draft…", async () => {
-                        await postJson(`/api/candidates/${id}/email/override`, { kind: null, reason: "back to recommendation" });
-                        window.location.reload();
-                      })
-                    }
-                  >
+                  <button className="btn" disabled={!!busy} onClick={() => askOr("clear", (replace) => doOverride(null, "back to recommendation", replace))}>
                     Clear override
                   </button>
                 )}

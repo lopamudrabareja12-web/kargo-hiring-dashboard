@@ -19,7 +19,19 @@ import { rateCv } from "./scorer";
 import { computeRankings, emailTypeOf, recommendedEmailKind, type EmailKind, type RankInput } from "./ranking";
 import { weightedTotal } from "./scoring";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export class PipelineError extends Error {}
+
+/** The action would throw away something Arjun wrote; the caller must confirm explicitly. */
+export class NeedsConfirmation extends PipelineError {}
+
+/** The candidate (or id) does not exist. Becomes a 404, never a database message. */
+export class NotFoundError extends PipelineError {
+  constructor(message = "Candidate not found (it may have been deleted).") {
+    super(message);
+  }
+}
 
 /* ----------------------------- Loaders ----------------------------- */
 
@@ -28,7 +40,19 @@ export interface ActiveRubric {
   criteria: Record<Role, CriterionRow[]>;
 }
 
-export async function activeRubric(): Promise<ActiveRubric> {
+// The rubric changes only when someone re-seeds it, so page views may reuse it for a minute.
+// Anything that scores or writes always reads it fresh.
+let rubricCache: { at: number; value: ActiveRubric } | null = null;
+const RUBRIC_CACHE_MS = 60_000;
+
+export async function activeRubric(opts: { cached?: boolean } = {}): Promise<ActiveRubric> {
+  if (opts.cached && rubricCache && Date.now() - rubricCache.at < RUBRIC_CACHE_MS) return rubricCache.value;
+  const value = await loadActiveRubric();
+  rubricCache = { at: Date.now(), value };
+  return value;
+}
+
+async function loadActiveRubric(): Promise<ActiveRubric> {
   const version = must(
     await db().from("rubric_versions").select("*").eq("is_active", true).maybeSingle(),
     "loading the rubric",
@@ -44,8 +68,9 @@ export async function activeRubric(): Promise<ActiveRubric> {
 }
 
 async function loadCandidate(id: string): Promise<CandidateRow> {
+  if (!UUID_RE.test(id)) throw new NotFoundError();
   const c = must(await db().from("candidates").select("*").eq("id", id).maybeSingle(), "loading the candidate");
-  if (!c) throw new PipelineError("Candidate not found (it may have been deleted).");
+  if (!c) throw new NotFoundError();
   return c as CandidateRow;
 }
 
@@ -62,14 +87,14 @@ async function jdFor(role: Role): Promise<string | null> {
 
 export type IngestResult =
   | { kind: "created"; id: string; stage: CandidateRow["stage"]; needsName: boolean }
-  | { kind: "duplicate"; id: string };
+  | { kind: "duplicate"; id: string; role: Role };
 
 export async function ingest(buffer: Buffer, filename: string, role: Role): Promise<IngestResult> {
   const text = await extractText(buffer, filename); // throws ExtractError with a readable reason
   const hash = contentHash(text);
 
-  const existing = must(await db().from("candidates").select("id").eq("content_hash", hash).maybeSingle(), "checking duplicates") as { id: string } | null;
-  if (existing) return { kind: "duplicate", id: existing.id };
+  const existing = must(await db().from("candidates").select("id, applied_role").eq("content_hash", hash).maybeSingle(), "checking duplicates") as { id: string; applied_role: Role } | null;
+  if (existing) return { kind: "duplicate", id: existing.id, role: existing.applied_role };
 
   const { pii, cvContent } = extractAndRedact(text, filename);
   const needsName = !pii.name || !pii.nameConfident;
@@ -95,8 +120,8 @@ export async function ingest(buffer: Buffer, filename: string, role: Role): Prom
     .select("id, stage")
     .single();
   if (ins.error?.code === "23505") {
-    const dup = must(await db().from("candidates").select("id").eq("content_hash", hash).single(), "checking duplicates") as { id: string };
-    return { kind: "duplicate", id: dup.id };
+    const dup = must(await db().from("candidates").select("id, applied_role").eq("content_hash", hash).single(), "checking duplicates") as { id: string; applied_role: Role };
+    return { kind: "duplicate", id: dup.id, role: dup.applied_role };
   }
   const cand = must(ins, "saving the candidate") as { id: string; stage: CandidateRow["stage"] };
 
@@ -433,8 +458,11 @@ async function generateEmail(ctx: DraftContext, kind: EmailKind, guardName: stri
  * matches the recommended (or overridden) email type. Never touches sent emails,
  * and never overwrites Arjun's edits unless `forceEmail` (he pressed Regenerate).
  */
-export async function draftFor(id: string, opts: { forceEmail?: boolean; forceBrief?: boolean } = {}): Promise<number> {
+export async function draftFor(id: string, opts: { forceEmail?: boolean; forceBrief?: boolean; replaceEdits?: boolean } = {}): Promise<number> {
   const ctx = await draftContext(id);
+  if (opts.forceEmail && ctx.email?.edited && !ctx.email.sent_at && !opts.replaceEdits) {
+    throw new NeedsConfirmation("This would replace the edits you made to the draft. Confirm to replace them.");
+  }
   const pii = await loadPii(id);
   const guardName = pii?.name ?? null;
   let calls = 0;
@@ -448,7 +476,9 @@ export async function draftFor(id: string, opts: { forceEmail?: boolean; forceBr
   if (ctx.email?.sent_at) {
     if (opts.forceEmail) throw new PipelineError("This email was already sent; it can't be redrafted.");
   } else if (work.email || opts.forceEmail) {
+    const hadEdits = !!ctx.email?.edited;
     await generateEmail(ctx, kind, guardName);
+    if (hadEdits) await logEvent(id, "draft_replaced", { reason: "Arjun confirmed replacing his edits" });
     calls++;
   }
   return calls;
@@ -516,19 +546,38 @@ export async function saveEmailEdit(id: string, subject: string, body: string) {
   await logEvent(id, "draft_edited", { words: body.trim().split(/\s+/).length });
 }
 
-export async function setOverride(id: string, kind: EmailKind | null, reason: string) {
+export async function setOverride(id: string, kind: EmailKind | null, reason: string, replaceEdits = false) {
   if (kind && reason.trim().length < 5) throw new PipelineError("Write a short reason for the override (it goes in the decision log).");
   const c = await loadCandidate(id);
   const rt = must(await db().from("role_totals").select("*").eq("candidate_id", id).eq("role", c.applied_role).maybeSingle(), "loading ranks") as RoleTotalRow | null;
   if (!rt) throw new PipelineError("Score this candidate before overriding.");
-  const e = must(await db().from("emails").select("sent_at, kind").eq("candidate_id", id).maybeSingle(), "loading the email") as Pick<EmailRow, "sent_at" | "kind"> | null;
+  const e = must(await db().from("emails").select("sent_at, kind, edited").eq("candidate_id", id).maybeSingle(), "loading the email") as Pick<EmailRow, "sent_at" | "kind" | "edited"> | null;
   if (e?.sent_at) throw new PipelineError("This email was already sent.");
+  if (e?.edited && !replaceEdits) throw new NeedsConfirmation("Changing the email type rewrites the draft and replaces the edits you made. Confirm to replace them.");
   const recommended = recommendedEmailKind({ aboveLine: rt.above_line, crossRoleFit: rt.cross_role_fit });
   if (e) must(await db().from("emails").update({ override_kind: kind }).eq("candidate_id", id), "saving the override");
   await logEvent(id, kind ? "override" : "override_cleared", { recommended, chosen: kind ?? recommended, reason: reason.trim().slice(0, 500) });
   if (!e) return;
   // Redraft to match the decision (forced: the decision is explicit).
-  await draftFor(id, { forceEmail: true });
+  await draftFor(id, { forceEmail: true, replaceEdits });
+}
+
+/**
+ * Re-file a candidate under the other role (e.g. uploaded as PM by mistake). Ranks, the line and
+ * everyone's drafts are recomputed; a candidate who was already emailed can't be moved.
+ */
+export async function changeRole(id: string, role: Role) {
+  if (role !== "PM" && role !== "SPM") throw new PipelineError("Pick PM or SPM.");
+  const c = await loadCandidate(id);
+  if (c.applied_role === role) return { role, changed: false };
+  const e = must(await db().from("emails").select("sent_at").eq("candidate_id", id).maybeSingle(), "loading the email") as Pick<EmailRow, "sent_at"> | null;
+  if (e?.sent_at) throw new PipelineError(`They were already emailed as a ${c.applied_role} applicant, so their role can't be changed.`);
+  must(await db().from("candidates").update({ applied_role: role, updated_at: new Date().toISOString() }).eq("id", id), "changing the role");
+  // The override (if any) was chosen for the old role; the system recommendation applies again.
+  if (e) must(await db().from("emails").update({ override_kind: null }).eq("candidate_id", id), "clearing the override");
+  await logEvent(id, "role_changed", { from: c.applied_role, to: role });
+  if (c.stage === "scored" || c.stage === "drafted") await recomputeRankings();
+  return { role, changed: true };
 }
 
 export async function deleteCandidate(id: string) {

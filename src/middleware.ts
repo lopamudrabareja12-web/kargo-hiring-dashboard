@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, safeEqual, sessionToken } from "@/lib/auth";
+import { SESSION_COOKIE, verifySession } from "@/lib/auth";
 
 // Every page and API route needs the session cookie, except the login itself.
 export async function middleware(req: NextRequest) {
@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
 
   const password = process.env.DASHBOARD_PASSWORD;
   const cookie = req.cookies.get(SESSION_COOKIE)?.value ?? "";
-  const ok = !!password && !!cookie && safeEqual(cookie, await sessionToken(password));
+  const ok = !!password && !!cookie && (await verifySession(cookie, password));
   if (ok) return NextResponse.next();
 
   if (pathname.startsWith("/api/")) {

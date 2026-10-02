@@ -143,7 +143,7 @@ export function DashboardTable({ rows, role }: { rows: DashboardRow[]; role: "PM
                     <div className="flex items-center gap-3">
                       <Avatar name={r.name} size={34} />
                       <div className="min-w-0">
-                        <Link href={`/candidates/${r.id}`} className="font-semibold text-ink no-underline hover:text-leaf-700" onClick={(e) => e.stopPropagation()}>
+                        <Link href={`/candidates/${r.id}`} className="inline-block py-[3px] font-semibold text-ink no-underline hover:text-leaf-700" onClick={(e) => e.stopPropagation()}>
                           {r.name}
                         </Link>
                         {!r.reviewed && <span className="chip ml-1.5 bg-bark-100 text-bark-700">new</span>}

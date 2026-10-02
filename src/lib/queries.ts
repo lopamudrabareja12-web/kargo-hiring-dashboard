@@ -5,6 +5,8 @@ import {
   type BriefRow, type CandidateRow, type CriterionRow, type EmailRow, type EventRow, type PiiRow, type RoleTotalRow,
   type RubricVersionRow, type ScoreRow,
 } from "./db";
+import { env } from "./env";
+import { schedulingLinkProblem } from "./link";
 import { activeRubric, desiredKind, pendingDraftIds } from "./pipeline";
 import type { EmailKind } from "./ranking";
 
@@ -51,12 +53,14 @@ export interface Dashboard {
   rows: DashboardRow[];
   counts: { applicants: number; reviewed: number; sent: number; aboveLine: number; top5BelowBar: number; problems: number };
   pendingDrafts: number;
+  /** Set when unsent invites exist but SCHEDULING_LINK is missing or a placeholder. */
+  bookingLinkProblem: string | null;
 }
 
 export async function getDashboard(role: Role): Promise<Dashboard> {
   // Independent reads go out together: each round trip to the database costs a few hundred ms.
   const [rubric, candsRes, pendingIds] = await Promise.all([
-    activeRubric(),
+    activeRubric({ cached: true }),
     db().from("candidates").select("id, headline, status, stage, error, reviewed_at, rubric_version_id, created_at").eq("applied_role", role).order("created_at"),
     pendingDraftIds(),
   ]);
@@ -129,6 +133,7 @@ export async function getDashboard(role: Role): Promise<Dashboard> {
       problems: rows.filter((r) => r.status === "error" || r.status === "needs_name" || r.staleRubric).length,
     },
     pendingDrafts: pendingIds.length,
+    bookingLinkProblem: rows.some((r) => r.emailType === "invite" && r.emailStatus !== "Sent") ? schedulingLinkProblem(env.schedulingLink()) : null,
   };
 }
 
@@ -148,9 +153,10 @@ export interface CandidateDetail {
 }
 
 export async function getCandidate(id: string): Promise<CandidateDetail | null> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return null;
   const candidate = must(await db().from("candidates").select("*").eq("id", id).maybeSingle(), "loading the candidate") as CandidateRow | null;
   if (!candidate) return null;
-  const rubric = await activeRubric();
+  const rubric = await activeRubric({ cached: true });
   const [pii, totals, scores, brief, email, events, scoredWith, poolPM, poolSPM] = await Promise.all([
     db().from("candidate_pii").select("*").eq("candidate_id", id).maybeSingle(),
     db().from("role_totals").select("*").eq("candidate_id", id),

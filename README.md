@@ -136,6 +136,22 @@ The tool does not watch an inbox: a CV only enters when it is uploaded. The same
 - **Null characters** in PDF text are stripped before saving (Postgres rejects them).
 - **The free Gemini tier** is enough for this: use `gemini-3.1-flash-lite` (15 requests per minute). Expect roughly 45 to 50 minutes for 50 CVs.
 
+## Security notes
+
+- **Login:** one password, checked in middleware on every page and API route. The session cookie is `HttpOnly`, `Secure` and `SameSite=Lax`; it carries a **server-checked expiry** (7 days) and a **random part per login**, so a copied cookie stops working when it expires and changing `DASHBOARD_PASSWORD` signs everyone out.
+- **Brute-force protection:** failed logins are recorded in the `events` table (only a salted hash of the IP). After 8 failures in 15 minutes an address is locked out for the rest of the window, every wrong guess takes at least 0.7 s, and if the whole site is being hammered (40+ failures) every attempt is slowed down.
+- **Headers:** `X-Frame-Options: DENY` and `frame-ancestors 'none'` (no framing, so no clickjacking on "Confirm & send"), `nosniff`, a strict referrer policy and a locked-down permissions policy.
+- **Bad input** gets a clear message, not a stack trace: malformed ids are "not found", malformed JSON or empty uploads are 400s.
+- **Dependencies:** `npm audit --omit=dev` reports 0 vulnerabilities. Next's own copy of `postcss` is pinned to a patched version through `overrides` in `package.json` (the only upstream fix is Next 16, which is outside the required stack).
+- **Hosting region:** `vercel.json` runs the server in Mumbai (`bom1`), next to the database, which roughly halves page load time. Change it if the Supabase project moves.
+- **Uploads** are limited to 4 MB (Vercel rejects larger request bodies).
+
+## Guardrails on Arjun's decisions
+
+- **Nothing replaces his words silently.** Regenerating a draft, or changing its email type, asks first if he has edited it ("Yes, replace my edits" / "Keep my edits"); the API refuses unless told to replace.
+- **An invite can't go out with a placeholder booking link.** If `SCHEDULING_LINK` is empty, malformed or still a placeholder like `https://cal.com/your-link`, the preview is refused with the reason, and the dashboard shows a warning.
+- **A CV filed under the wrong role** can be moved with **Move to PM/SPM** on the candidate page (ranks, the line and drafts update; not possible once they have been emailed).
+
 ## Data privacy
 
 **Personal details are separated at ingestion, in code.** Name, email, phone and profile links are pulled out with regex and heuristics, never by an LLM, and stored in a separate `candidate_pii` table. The CV text that's kept (`cv_content`) has them replaced with tokens like `[NAME]` and `[EMAIL]`. Lines for address, date of birth, age, gender, marital status, nationality and similar are replaced too.
