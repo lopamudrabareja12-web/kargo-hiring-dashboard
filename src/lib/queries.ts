@@ -54,11 +54,13 @@ export interface Dashboard {
 }
 
 export async function getDashboard(role: Role): Promise<Dashboard> {
-  const rubric = await activeRubric();
-  const cands = must(
-    await db().from("candidates").select("id, headline, status, stage, error, reviewed_at, rubric_version_id, created_at").eq("applied_role", role).order("created_at"),
-    "loading candidates",
-  ) as CandidateRow[];
+  // Independent reads go out together: each round trip to the database costs a few hundred ms.
+  const [rubric, candsRes, pendingIds] = await Promise.all([
+    activeRubric(),
+    db().from("candidates").select("id, headline, status, stage, error, reviewed_at, rubric_version_id, created_at").eq("applied_role", role).order("created_at"),
+    pendingDraftIds(),
+  ]);
+  const cands = must(candsRes, "loading candidates") as CandidateRow[];
   const ids = cands.map((c) => c.id);
   const inIds = <T,>(table: string, cols: string) =>
     ids.length ? db().from(table).select(cols).in("candidate_id", ids) : Promise.resolve({ data: [] as T[], error: null });
@@ -126,7 +128,7 @@ export async function getDashboard(role: Role): Promise<Dashboard> {
       top5BelowBar: ranked.filter((r) => r.band === "top5_below_bar").length,
       problems: rows.filter((r) => r.status === "error" || r.status === "needs_name" || r.staleRubric).length,
     },
-    pendingDrafts: (await pendingDraftIds()).length,
+    pendingDrafts: pendingIds.length,
   };
 }
 

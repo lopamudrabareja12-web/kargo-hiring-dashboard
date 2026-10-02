@@ -85,6 +85,10 @@ Run `calibrate` once you have a Gemini key.
 | `npm run redraft` | Regenerates briefs and unedited, unsent drafts (e.g. after adding JDs). **Doesn't re-score.** |
 | `npm run rescore-check` | Re-scores 3 candidates without saving and reports any criterion that changed (reproducibility check) |
 | `npm run rescore` | Re-scores candidates scored with an older rubric (`-- --all` for everyone) |
+| `npm run check` | Checks the Supabase and Gemini keys in `.env.local` work (prints no secrets) |
+| `npm run load:applications` | Loads every PDF/DOCX in `applications/` through the real pipeline, one at a time (free-tier friendly), skipping duplicates and resuming half-finished ones. The role comes from the file name: `spm_…` is SPM, `pm_…` is PM, anything else is PM. Logs only the file number, never a name. Sends no email. |
+| `npm run load:samples` | Loads the 8 fictional past-hire CVs from `context/hires/` as demo applicants (for demos only; delete them before loading real applicants) |
+| `npm run redraft -- --emails-only` | Rewrites unedited, unsent email drafts without touching briefs or scores |
 
 ## Deploy to Vercel
 
@@ -109,6 +113,28 @@ Each API route has `maxDuration = 60`. The pipeline runs one step per request (s
    - **Show what the AI saw** reveals the redacted text.
    - **Delete candidate** removes every row for that person.
 4. **Rubric:** a read-only view of the criteria, weights and versions, and which version scored how many candidates.
+
+## Day to day (after the first batch)
+
+1. Arjun saves a new CV as a PDF or Word file.
+2. **Upload CVs** → pick PM or SPM → drop the file in. About a minute later it is scored for both roles, ranked against everyone already there, and has an email draft.
+3. If it lands in the top 5, it gets a brief; anyone it pushes out keeps their brief (hidden). A draft Arjun already edited is never overwritten: it is flagged **Draft outdated** instead.
+4. Arjun reviews and clicks **Confirm & send** per person.
+
+The tool does not watch an inbox: a CV only enters when it is uploaded. The same CV uploaded twice is skipped.
+
+## Email: test mode and going live
+
+- Resend's free sender (`onboarding@resend.dev`) only delivers to the address of the Resend account owner. Set `EMAIL_OVERRIDE_TO` to that address: every email then goes there, with `[TEST] original recipient: …` appended, and **never to a candidate**.
+- To go live: verify a domain in Resend, set `RESEND_FROM` to an address on it, remove `EMAIL_OVERRIDE_TO`, and set `SCHEDULING_LINK` to Arjun's real booking link.
+- Every email still needs its own **Confirm & send**. There is no bulk, automatic or scheduled sending.
+
+## Notes from running it on real CVs
+
+- **PDF text is messy.** Contact lines are often repeated and glued together (`+91 98202 1134598202 11345`), profile links sit against the previous word, and names appear inside web-address slugs. Redaction therefore matches Indian mobiles on their own shape, removes names with any separator or inside slugs, and the guardrail blocks any AI call that still contains a phone number, email, profile link or the candidate's name. Regression tests cover these shapes.
+- **Unreadable files** (scanned images, under 200 characters of text) are rejected with a readable reason; ask for a text PDF or DOCX.
+- **Null characters** in PDF text are stripped before saving (Postgres rejects them).
+- **The free Gemini tier** is enough for this: use `gemini-3.1-flash-lite` (15 requests per minute). Expect roughly 45 to 50 minutes for 50 CVs.
 
 ## Data privacy
 

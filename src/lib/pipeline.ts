@@ -478,14 +478,17 @@ export async function syncDrafts(budgetMs = 20_000): Promise<{ processed: number
 
 /** Ranked candidates who are missing a brief or whose draft no longer matches. Above-line first. */
 export async function pendingDraftIds(): Promise<string[]> {
-  const totals = must(
-    await db().from("role_totals").select("candidate_id, in_top5, above_line, cross_role_fit, rank").eq("is_applied", true),
-    "loading ranks",
-  ) as Pick<RoleTotalRow, "candidate_id" | "in_top5" | "above_line" | "cross_role_fit" | "rank">[];
-  const cands = must(await db().from("candidates").select("id, status").in("stage", RANKED_STAGES), "loading candidates") as { id: string; status: string }[];
+  const [totalsRes, candsRes, briefsRes, emailsRes] = await Promise.all([
+    db().from("role_totals").select("candidate_id, in_top5, above_line, cross_role_fit, rank").eq("is_applied", true),
+    db().from("candidates").select("id, status").in("stage", RANKED_STAGES),
+    db().from("briefs").select("candidate_id, role, hidden"),
+    db().from("emails").select("candidate_id, kind, override_kind, edited, sent_at"),
+  ]);
+  const totals = must(totalsRes, "loading ranks") as Pick<RoleTotalRow, "candidate_id" | "in_top5" | "above_line" | "cross_role_fit" | "rank">[];
+  const cands = must(candsRes, "loading candidates") as { id: string; status: string }[];
   const okIds = new Set(cands.filter((c) => c.status !== "error").map((c) => c.id));
-  const briefs = must(await db().from("briefs").select("candidate_id, role, hidden"), "loading briefs") as Pick<BriefRow, "candidate_id" | "hidden">[];
-  const emails = must(await db().from("emails").select("candidate_id, kind, override_kind, edited, sent_at"), "loading emails") as Pick<EmailRow, "candidate_id" | "kind" | "override_kind" | "edited" | "sent_at">[];
+  const briefs = must(briefsRes, "loading briefs") as Pick<BriefRow, "candidate_id" | "hidden">[];
+  const emails = must(emailsRes, "loading emails") as Pick<EmailRow, "candidate_id" | "kind" | "override_kind" | "edited" | "sent_at">[];
   const bMap = new Map(briefs.map((b) => [b.candidate_id, b]));
   const eMap = new Map(emails.map((e) => [e.candidate_id, e]));
   return totals
