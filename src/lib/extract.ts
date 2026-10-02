@@ -3,6 +3,16 @@ import { MIN_TEXT_CHARS } from "./constants";
 
 export class ExtractError extends Error {}
 
+/** Postgres refuses NUL characters, and other control characters are PDF/DOCX debris. */
+export function cleanExtractedText(text: string): string {
+  return text
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 /** Parse a PDF or DOCX buffer to plain text. The buffer is discarded after this. */
 export async function extractText(buffer: Buffer, filename: string): Promise<string> {
   const lower = filename.toLowerCase();
@@ -25,7 +35,7 @@ export async function extractText(buffer: Buffer, filename: string): Promise<str
   } else {
     throw new ExtractError("Only PDF and DOCX files are supported.");
   }
-  text = text.replace(/\r\n?/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  text = cleanExtractedText(text);
   if (text.replace(/\s/g, "").length < MIN_TEXT_CHARS) {
     throw new ExtractError(
       `Only ${text.replace(/\s/g, "").length} characters of text found (need ${MIN_TEXT_CHARS}+). ` +

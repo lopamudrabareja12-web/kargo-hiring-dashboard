@@ -200,3 +200,12 @@ describe("PDF-shaped contact blocks (glued, duplicated, headings first)", () => 
     expect(() => assertNoPii("The candidate led a team", "Rohan Mehta")).not.toThrow();
   });
 });
+
+import { cleanExtractedText } from "@/lib/extract";
+describe("cleanExtractedText", () => {
+  it("strips NUL and control characters that the database rejects, and keeps normal text", () => {
+    const out = cleanExtractedText("Operations lead.\u0000 Built a tracker.\u0007\r\n\r\n\r\n\r\nTwo weeks \t\nlater.");
+    expect(out).toBe("Operations lead. Built a tracker.\n\nTwo weeks\nlater.");
+    expect(out).not.toMatch(/\u0000|\u0007/);
+  });
+});
