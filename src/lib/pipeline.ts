@@ -283,9 +283,6 @@ export async function runStep(id: string): Promise<{ stage: CandidateRow["stage"
   const c = await loadCandidate(id);
   if (c.stage === "needs_name") throw new PipelineError("Enter the candidate's name first, so it can be removed before AI sees the CV.");
   if (c.stage === "drafted") return { stage: c.stage, status: c.status };
-  if (c.status === "error" && /^Blocked: personal details/.test(c.error ?? "")) {
-    throw new PipelineError(c.error!);
-  }
   const set = async (patch: Partial<CandidateRow>) =>
     must(await db().from("candidates").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id), "updating the candidate");
 

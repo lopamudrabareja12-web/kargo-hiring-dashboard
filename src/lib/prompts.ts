@@ -191,7 +191,7 @@ export function briefPrompt(b: BriefInput): string {
     .join("\n");
   const position =
     b.band === "top5_below_bar"
-      ? `They are rank ${b.rank} of ${b.poolSize} ${b.role} applicants, which is inside the top 5, but their total of ${b.total}/100 is below the ${MIN_SCORE} bar, so the default is a rejection unless Arjun decides otherwise. Make the "why" sentence say clearly what keeps them below the bar.`
+      ? `They are rank ${b.rank} of ${b.poolSize} ${b.role} applicants, which is inside the top 5, but their total of ${b.total}/100 is below the ${MIN_SCORE} bar, so the default is a rejection unless the founder decides otherwise. Make the "why" sentence say clearly what keeps them below the bar.`
       : `They are rank ${b.rank} of ${b.poolSize} ${b.role} applicants with ${b.total}/100.`;
   return `Role applied for: ${ROLE_LABEL[b.role]} (${b.role}).
 ${position}
@@ -258,9 +258,9 @@ function kindInstruction(kind: EmailKind, applied: Role): string {
   const o = ROLE_LABEL[otherRole(applied)];
   switch (kind) {
     case "invite":
-      return `Write an INTERVIEW INVITE for the ${a} role. Mention one or two concrete things from their background that made Arjun want to talk. Ask them to book a time at {{SCHEDULING_LINK}} (write exactly that placeholder once). Under ${INVITE_MAX_WORDS} words.`;
+      return `Write an INTERVIEW INVITE for the ${a} role. Mention one or two concrete things from their background that made the founder want to talk. Ask them to book a time at {{SCHEDULING_LINK}} (write exactly that placeholder once). Under ${INVITE_MAX_WORDS} words.`;
     case "invite_plus_other":
-      return `Write an INTERVIEW INVITE for the ${a} role. Mention one or two concrete things from their background. Also say their background looks like a fit for the ${o} role, and that Arjun is happy to discuss both in the conversation. Ask them to book a time at {{SCHEDULING_LINK}} (exactly that placeholder, once). Under ${INVITE_MAX_WORDS} words.`;
+      return `Write an INTERVIEW INVITE for the ${a} role. Mention one or two concrete things from their background. Also say their background looks like a fit for the ${o} role, and that the founder is happy to discuss both in the conversation. Ask them to book a time at {{SCHEDULING_LINK}} (exactly that placeholder, once). Under ${INVITE_MAX_WORDS} words.`;
     case "invite_other_role":
       return `They applied for the ${a} role and are not moving forward for that role: say so clearly and kindly. But their background is a strong fit for the ${o} role, so INVITE them to interview for the ${o} role instead, naming one or two concrete things from their CV. Ask them to book a time at {{SCHEDULING_LINK}} (exactly that placeholder, once). Under ${INVITE_MAX_WORDS} words.`;
     case "rejection":
