@@ -13,7 +13,7 @@ const LINKS: { href: string; label: string; icon: IconName; match: (p: string) =
 
 export function NavBar() {
   const path = usePathname();
-  if (path === "/login") return null;
+  if (path === "/login" || path === "/book") return null;
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30 flex justify-center px-3 pt-4">
       <nav aria-label="Main" className="glass-nav pointer-events-auto flex w-full max-w-5xl items-center gap-1 rounded-full py-1.5 pl-2.5 pr-1.5 sm:gap-2">

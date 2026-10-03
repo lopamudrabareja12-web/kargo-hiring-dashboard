@@ -4,7 +4,8 @@ import { SESSION_COOKIE, verifySession } from "@/lib/auth";
 // Every page and API route needs the session cookie, except the login itself.
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (pathname === "/login" || pathname === "/api/login") return NextResponse.next();
+  // /book is the page invite emails link to, so candidates must be able to open it without logging in.
+  if (pathname === "/login" || pathname === "/api/login" || pathname === "/book") return NextResponse.next();
 
   const password = process.env.DASHBOARD_PASSWORD;
   const cookie = req.cookies.get(SESSION_COOKIE)?.value ?? "";
